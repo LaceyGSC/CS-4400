@@ -176,6 +176,7 @@ int allEvenBits(int x) {
  *   Rating: 4 
  */
 int bang(int x) {
+	/* Get the MSB of x, then invert x and get the MSB again. Return the bitwise AND of both MSBs. */
 	int zero_or_positive = ((x >> 31) & 1) ^ 1;
 	int inverted = ~x + 1;
 	int zero = ((inverted >> 31) & 1) ^ 1;
@@ -407,6 +408,7 @@ int negate(int x) {
  *   Rating: 3
  */
 int replaceByte(int x, int n, int c) {
+	int shift = n << 3;
 	return 2;
 }
 /* 
@@ -421,11 +423,11 @@ int sign(int x) {
 	/* shift x all the way right (the result is either -1 or 0), get the sign bit of
 	 * x, then see whether it was positive and add the result to the shifted value
 	 */
-	int shifted  = (x >> 31);               // -1
-	int sign_bit = (x >> 31) & 1;           //  1
-	int condition1 = !!x;                   //  1
-	int condition2 = sign_bit ^ 1;          //  0
-	int positive = condition1 & condition2; //  0
+	int shifted  = (x >> 31);
+	int sign_bit = (x >> 31) & 1;
+	int condition1 = !!x;
+	int condition2 = sign_bit ^ 1;
+	int positive = condition1 & condition2;
     return shifted + positive;
 }
 /* 
