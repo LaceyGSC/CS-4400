@@ -141,14 +141,15 @@ NOTES:
  *   Rating: 4
  */
 int absVal(int x) {
-	; // DELETE ME
 	/*
-	 * If x is positive or zero, you could just return it
-	 * If x is negative, you could invert its bits and add 1, then add that to x twice
+	 * Create a mask that is -1 if x is negative, 0 otherwise. Then invert x and determine how much should
+	 * be added to it. If x is negative, its positive counterpart will be added twice. If x is zero or
+	 * positive, it will be added to zero twice and returned.
 	 */
-//	int negative = (x >> 31) & 1;
-//	int inverted = ~x + 1;
-	return 2;
+	int mask = (~((x >> 31) & 1)) + 1;
+	int inverted = (~x) + 1;
+	int add = mask & inverted;
+	return x + add + add;
 }
 
 /* 
