@@ -456,7 +456,8 @@ int leastBitPos(int x) {
  *   Rating: 3 
  */
 int logicalShift(int x, int n) {
-	return 2;
+	/* shift x to the right, then create a mask off bits to the left of the shift */
+	return (x >> n) & ~(((0x1 << 31) >> n) << 1);
 }
 /* 
  * minusOne - return a value of -1 
