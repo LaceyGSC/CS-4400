@@ -443,7 +443,9 @@ int isZero(int x) {
  *   Rating: 2 
  */
 int leastBitPos(int x) {
-	return 2;
+	/* invert x and return the bitwise AND */
+	int inverted = ~x + 1;
+	return x & inverted;
 }
 /* 
  * logicalShift - shift x to the right by n, using a logical shift
