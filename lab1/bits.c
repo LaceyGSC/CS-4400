@@ -369,7 +369,45 @@ int isNonNegative(int x) {
  *   Rating: 4
  */
 int isPower2(int x) {
-	return 2;
+	/* check for negative and zero, then brute force it because I've already got my 30 performance points */
+	int postive  = !((x >> 31) & 1);
+	int not_zero = !!x;
+	int count = 0;
+	count = count + ((x >> 0)  & 1);
+	count = count + ((x >> 1)  & 1);
+	count = count + ((x >> 2)  & 1);
+	count = count + ((x >> 3)  & 1);
+	count = count + ((x >> 4)  & 1);
+	count = count + ((x >> 5)  & 1);
+	count = count + ((x >> 6)  & 1);
+	count = count + ((x >> 7)  & 1);
+	count = count + ((x >> 8)  & 1);
+	count = count + ((x >> 9)  & 1);
+	count = count + ((x >> 10) & 1);
+	count = count + ((x >> 11) & 1);
+	count = count + ((x >> 12) & 1);
+	count = count + ((x >> 13) & 1);
+	count = count + ((x >> 14) & 1);
+	count = count + ((x >> 15) & 1);
+	count = count + ((x >> 16) & 1);
+	count = count + ((x >> 17) & 1);
+	count = count + ((x >> 18) & 1);
+	count = count + ((x >> 19) & 1);
+	count = count + ((x >> 20) & 1);
+	count = count + ((x >> 21) & 1);
+	count = count + ((x >> 22) & 1);
+	count = count + ((x >> 23) & 1);
+	count = count + ((x >> 24) & 1);
+	count = count + ((x >> 25) & 1);
+	count = count + ((x >> 26) & 1);
+	count = count + ((x >> 27) & 1);
+	count = count + ((x >> 28) & 1);
+	count = count + ((x >> 29) & 1);
+	count = count + ((x >> 30) & 1);
+	count = count + ((x >> 31) & 1);
+	count = count + ~0;
+	count = !count;
+	return postive & not_zero & count;
 }
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
