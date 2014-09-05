@@ -211,7 +211,14 @@ int bitCount(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-	return 2;
+	/* determine whether x is true or false, then invert both, mask y and z, and return the bitwise OR of y and z */
+	int xtrue  = !!x;
+	int xfalse = !xtrue;
+	xtrue  = ~xtrue  + 1;
+	xfalse = ~xfalse + 1;
+	y = y & xtrue;
+	z = z & xfalse;
+	return y | z;
 }
 /* 
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
@@ -408,8 +415,13 @@ int negate(int x) {
  *   Rating: 3
  */
 int replaceByte(int x, int n, int c) {
+	/* find the byte to remove and subtract it from x, then put c in its place */
+	int x_copy = 0;
 	int shift = n << 3;
-	return 2;
+	int byte_to_remove = (x >> shift) & 0xff;
+	byte_to_remove =  byte_to_remove << shift;
+	x_copy = x + (~byte_to_remove + 1);
+	return x_copy + (c << shift);
 }
 /* 
  * sign - return 1 if positive, 0 if zero, and -1 if negative
