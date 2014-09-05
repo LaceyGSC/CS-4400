@@ -202,7 +202,41 @@ int bitAnd(int x, int y) {
  *   Rating: 4
  */
 int bitCount(int x) {
-	return 2;
+	/* brute force it because I've got my 30 performance points! */
+	int count = 0;
+	count = count + ((x >> 0)  & 1);
+	count = count + ((x >> 1)  & 1);
+	count = count + ((x >> 2)  & 1);
+	count = count + ((x >> 3)  & 1);
+	count = count + ((x >> 4)  & 1);
+	count = count + ((x >> 5)  & 1);
+	count = count + ((x >> 6)  & 1);
+	count = count + ((x >> 7)  & 1);
+	count = count + ((x >> 8)  & 1);
+	count = count + ((x >> 9)  & 1);
+	count = count + ((x >> 10) & 1);
+	count = count + ((x >> 11) & 1);
+	count = count + ((x >> 12) & 1);
+	count = count + ((x >> 13) & 1);
+	count = count + ((x >> 14) & 1);
+	count = count + ((x >> 15) & 1);
+	count = count + ((x >> 16) & 1);
+	count = count + ((x >> 17) & 1);
+	count = count + ((x >> 18) & 1);
+	count = count + ((x >> 19) & 1);
+	count = count + ((x >> 20) & 1);
+	count = count + ((x >> 21) & 1);
+	count = count + ((x >> 22) & 1);
+	count = count + ((x >> 23) & 1);
+	count = count + ((x >> 24) & 1);
+	count = count + ((x >> 25) & 1);
+	count = count + ((x >> 26) & 1);
+	count = count + ((x >> 27) & 1);
+	count = count + ((x >> 28) & 1);
+	count = count + ((x >> 29) & 1);
+	count = count + ((x >> 30) & 1);
+	count = count + ((x >> 31) & 1);
+	return count;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -371,7 +405,6 @@ int isZero(int x) {
  *   Rating: 2 
  */
 int leastBitPos(int x) {
-	/* 96 = 0110 0000 */
 	return 2;
 }
 /* 
