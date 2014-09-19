@@ -93,7 +93,7 @@
 |                                |
 ----------------------------------  <---  %rsp = 0x7FFFFFFFE738
 
-                                      WYLO .... start tracing <read_six_numbers>
+                                      WYLO .... start tracing <read_six_numbers> ... and remember that you saw this in the list of strings: %d %d %d %d %d %d
 
 
 
