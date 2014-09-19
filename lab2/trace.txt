@@ -1,0 +1,111 @@
+          Stack "bottom"
+----------------------------------  <---  main(), %rbp = 0x0, %rbx = 0x0, %rsp = 0x7fffffffe798
+|                                |
+|          saved %rbp            |    push %rbp
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE794
+|                                |
+|          saved %rbx            |    push %rbx
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE790
+|                                |
+|                                |
+|                                |
+----------------------------------    sub $0x8,%rsp
+|                                |
+|                                |
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE788
+                                  
+                                      mov %rsi, %rbx  --->  %rbx = 0x7fffffffe878  //  is %rsi equal to the address of argv (i.e. the second argument to main)?
+
+                                      cmp $0x1, %edi  --->  ZF = $edi - 0x1        //  is %edi equal to the value of argc (i.e. the first argument to main)?
+
+                                      jne 400d52                                   //  this is skipped when you don't provide an argument to bomb
+
+                                      mov 0x203157(%rip), %rax  --->  %rax = M[0x203157 + 0x400d34]  --->  %rax = M[0x603E8B]  //  %rip is the program counter; %rax is the return register for ints and pointers; does this set infile = stdin?
+
+                                      mov %rax, 0x203180(%rip)  //  does this store infile in memory at some offset of the program counter?
+
+                                      jmp 400dac  //  this is only executed when you don't provide an argument to bomb
+
+----------------------------------
+|                                |
+|    return address = 400db1     |    callq 40163b <initialize_bomb>
+|                                |
+----------------------------------  <---  initialize_bomb(),  %rsp = 0x7FFFFFFFE784
+|                                |
+|          saved %rbp            |    push %rbp
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE780
+|                                |
+|          saved %rbx            |    push %rbx
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE77C
+|                                |
+|              ...               |    sub $0x2048, %rsp  --->  %rsp -= 8264  //  this has the effect of creating 2066 "slots" for storing values on the stack (8264 / 4)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFC734
+                                  
+                                      mov $0x4016f8, %esi  --->  %esi = 0x4016f8  //  0x4016f8 is the address of the sig_handler() function
+
+                                      mov $0x2, %edi  --->  %edi = 2  //  signal 2 is SIGINT
+
+----------------------------------
+|                                |
+|    return address = 401653     |    callq  400bb8 <signal@plt>  --->  signal(2, sig_handler)  //  if bomb encounters a SIGINT, call sig_handler()
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFC730
+                                  
+                                      ... eventually initialize_bomb() returns to main() at address 400db1:
+
+----------------------------------  <---  main() at 400db1
+|                                |
+|              ...               |
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE788
+                                  
+                                      ... eventually main() calls read_line() to get your input for phase 2
+
+                                      mov %rax, %rdi  //  your input is stored in %rdi, which is the conventional first argument
+
+                                      callq 40105a <phase_2>
+
+----------------------------------  <---  phase_2()
+|                                |
+|          saved %rbp            |    push %rbp
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE770
+|                                |
+|          saved %rbx            |    push %rbx
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE768
+|                                |
+|                                |    sub $0x28, %rsp  --->  %rsp -= 40  //  create space for 10 "slots" on the stack
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE740
+                                  
+                                      mov %rsp, %rsi  ---> %rsi =  0x7FFFFFFFE740 //  move the stack pointer into %rsi, preparing it to be the second argument?
+
+                                      callq 401440 <read_six_numbers>  --->  read_six_numbers(%rdi, %rsi)  //  your input and the value of the stack pointer?
+
+                                      WYLO .... push the return address onto the stack and start tracing <read_six_numbers>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

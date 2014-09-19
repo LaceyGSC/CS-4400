@@ -1,0 +1,7 @@
+cmp  = 186
+j    = 190
+mov  = 171
+pop  = 171
+push = 171
+set  = 187
+test = 186
