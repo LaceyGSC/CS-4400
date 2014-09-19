@@ -87,9 +87,13 @@
                                   
                                       mov %rsp, %rsi  ---> %rsi =  0x7FFFFFFFE740 //  move the stack pointer into %rsi, preparing it to be the second argument?
 
-                                      callq 401440 <read_six_numbers>  --->  read_six_numbers(%rdi, %rsi)  //  your input and the value of the stack pointer?
+----------------------------------
+|                                |
+|    return address = 401068     |    callq 401440 <read_six_numbers>  --->  read_six_numbers(%rdi, %rsi)  //  your input and the value of the stack pointer?
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE738
 
-                                      WYLO .... push the return address onto the stack and start tracing <read_six_numbers>
+                                      WYLO .... start tracing <read_six_numbers>
 
 
 

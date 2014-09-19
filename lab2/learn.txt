@@ -5,29 +5,16 @@
 
 gdb bomb
 handle all nopass
+set step-mode on
 break phase_2
 break explode_bomb
 r
 Border relations with Canada have never been better.
 
 
-
-
-set step-mode on
-	break main
-	break phase_1
-break *0x401104
-break *0x40129d
-
-break *0x400db6
-break explode_bomb
-r
-info registers
 info registers
 
-info registers
-set listsize 0
-list phases.c:1
+
 signal SIGKILL
 
 
