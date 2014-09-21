@@ -1,0 +1,59 @@
+
+
+int loop(int x, int n)
+{
+	int result = ?;
+	int mask;
+	for (mask = ?; mask ?; mask = ?) {
+		result ^= ?;
+	}
+	return result;
+}
+
+
+
+int loop(int x, int n)
+{
+	int result = -1;
+	int mask;
+	for (mask = 1; mask != 0; mask = mask << n) {
+		result ^= mask & x;
+	}
+	return result;
+}
+
+
+x at %ebp + 8, n at %ebp + 12
+
+	movl	8(%ebp), %esi   -->	 %esi = x
+	movl	12(%ebp), %ebx  -->  %ebx = n
+	movl	$-1, %edi       -->  %edi = -1
+	movl	$1, %edx        -->  %edx = 1
+.L2:
+	movl	%edx, %eax      -->  %eax = %edx
+	andl	%esi, %eax      -->  %eax = %edx & %esi
+	xorl	%eax, %edi      -->  %edi = %edi ^ (%edx & %esi)
+	movl	%ebx, %ecx      -->  %ecx = %ebx = n
+	sall	%cl, %edx       -->  %edx <<= value of low-order 5 bits from %ecx
+	testl	%edx, %edx      -->  do %edx & %edx, then set ZF
+	jne		.L2             -->  if (~ZF) { go to .L2 }  //  if (%edx != 0) { go to .L2 }
+	movl	%edi, %eax      -->  %eax = %edi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
