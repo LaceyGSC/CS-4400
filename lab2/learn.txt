@@ -8,7 +8,7 @@ gdb bomb
 handle all nopass
 break explode_bomb
 set step-mode on
-break *0x4010bb
+break *0x4010e7
 run ./input.txt
 
 info registers
