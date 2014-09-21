@@ -205,6 +205,55 @@ Unfortunately gdb is giving inconsistent results for the value of %rsp after cal
 
 
 
+=====     Phase 5     =====
+
+
+
+
+000000000040109d <phase_5>:
+  40109d:	53                   	push   %rbx
+  40109e:	48 83 ec 10          	sub    $0x10,%rsp
+  4010a2:	48 89 fb             	mov    %rdi,%rbx					-->  %rbx = 0x4023D7  //  "??????"
+  4010a5:	e8 86 01 00 00       	callq  401230 <string_length>
+  4010aa:	83 f8 06             	cmp    $0x6,%eax
+  4010ad:	74 05                	je     4010b4 <phase_5+0x17>
+  4010af:	e8 56 03 00 00       	callq  40140a <explode_bomb>
+  4010b4:	48 89 e0             	mov    %rsp,%rax 					-->  %rax = %rsp
+  4010b7:	48 8d 73 06          	lea    0x6(%rbx),%rsi 				-->  %rsi = %rbx + 6
+  4010bb:	ba 30 24 40 00       	mov    $0x402430,%edx				-->  %edx = 0x402430
+  4010c0:	48 0f be 0b          	movsbq (%rbx),%rcx					-->  %rcx = (%rbx)    //  Load value from memory address %rbx and sign extend its LSB into %rcx
+  4010c4:	83 e1 0f             	and    $0xf,%ecx					-->  %ecx = %ecx & 0xf
+  4010c7:	0f b6 0c 0a          	movzbl (%rdx,%rcx,1),%ecx			-->  %ecx = ((%rcx * 1) + %rdx)  //  ...zero-extend the LSB into %ecx
+  4010cb:	88 08                	mov    %cl,(%rax)					-->  (%rax) = %cl
+  4010cd:	48 83 c3 01          	add    $0x1,%rbx					-->  %rbx += 1
+  4010d1:	48 83 c0 01          	add    $0x1,%rax                    -->  %rax += 1
+  4010d5:	48 39 f3             	cmp    %rsi,%rbx					-->  do %rbx - %rsi and set the condition codes
+  4010d8:	75 e6                	jne    4010c0 <phase_5+0x23>		-->  if (%rbx != %rsi) { go to 4010c0 }
+  4010da:	c6 44 24 06 00       	movb   $0x0,0x6(%rsp)				-->  0x6(%rsp) = 0
+  4010df:	48 89 e7             	mov    %rsp,%rdi                    -->  %rdi = %rsp
+  4010e2:	be dd 23 40 00       	mov    $0x4023dd,%esi				-->  %esi = 0x4023dd
+  4010e7:	e8 60 01 00 00       	callq  40124c <strings_not_equal>
+  4010ec:	85 c0                	test   %eax,%eax					-->  do %eax - %eax and set the condition codes
+  4010ee:	74 05                	je     4010f5 <phase_5+0x58>		-->  if (ZF) { go to 4010f5 }  //  if (%eax == 0) { go to 4010f5 }
+  4010f0:	e8 15 03 00 00       	callq  40140a <explode_bomb>
+  4010f5:	48 83 c4 10          	add    $0x10,%rsp
+  4010f9:	5b                   	pop    %rbx
+  4010fa:	c3                   	retq   
+
+
+
+
+before comparing %rbx and %rsi for equality, it will be necessary to add 1 (at least once) to %rbx
+
+%rbx must equal %rsi
+
+%rsp must become this: 0x4023dd
+
+%rsp must become this: 0100 0000 0010 0011 1101 1101
+
+
+
+
 
 
 
