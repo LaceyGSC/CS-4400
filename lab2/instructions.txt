@@ -1,7 +1,15 @@
-cmp  = 186
-j    = 190
-mov  = 171
-pop  = 171
-push = 171
-set  = 187
-test = 186
+operand specifiers = 169
+condition codes    = 185
+
+call  = 221
+cmp   = 186
+j     = 190
+lea   = 178
+leave = 221
+mov   = 171
+pop   = 171
+push  = 171
+ret   = 221
+set   = 187
+shift = 178
+test  = 186

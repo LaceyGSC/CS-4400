@@ -64,36 +64,143 @@
 |              ...               |
 |                                |
 ----------------------------------  <---  %rsp = 0x7FFFFFFFE788
-                                  
+
+
+
+
+    *** *** *** *** ***    BEGIN BETTER TRACKING    *** *** *** *** ***
+
+
+
+
                                       ... eventually main() calls read_line() to get your input for phase 2
 
-                                      mov %rax, %rdi  //  your input is stored in %rdi, which is the conventional first argument
+                                      mov %rax, %rdi  //  your input is stored in %rdi, which is the conventional 1st argument
 
                                       callq 40105a <phase_2>
 
 ----------------------------------  <---  phase_2()
 |                                |
-|          saved %rbp            |    push %rbp
+|          saved %rbp            |    push %rbp (memory address = 0x7FFFFFFFE778)
 |                                |
-----------------------------------  <---  %rsp = 0x7FFFFFFFE770
+----------------------------------  <---  %rsp = 0x7FFFFFFFE770  //  this is the first place where you have the correct value for %rsp
 |                                |
-|          saved %rbx            |    push %rbx
+|          saved %rbx            |    push %rbx (memory address = 0x7FFFFFFFE770)
 |                                |
 ----------------------------------  <---  %rsp = 0x7FFFFFFFE768
+                                  
+                                      sub $0x28, %rsp  --->  %rsp -= 40  //  create space for 5, 8-byte "slots" on the stack
+
+----------------------------------
 |                                |
-|                                |    sub $0x28, %rsp  --->  %rsp -= 40  //  create space for 10 "slots" on the stack
+|                                |    (memory address = 0x7FFFFFFFE768)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE760
+|                                |
+|                                |    (memory address = 0x7FFFFFFFE760)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE758
+|                                |
+|                                |    (memory address = 0x7FFFFFFFE758)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE750
+|                                |
+|                                |    (memory address = 0x7FFFFFFFE750)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE748
+|                                |
+|                                |    (memory address = 0x7FFFFFFFE748)
 |                                |
 ----------------------------------  <---  %rsp = 0x7FFFFFFFE740
                                   
-                                      mov %rsp, %rsi  ---> %rsi =  0x7FFFFFFFE740 //  move the stack pointer into %rsi, preparing it to be the second argument?
+                                      mov %rsp, %rsi  ---> %rsi = 0x7FFFFFFFE740  //  move the stack pointer into %rsi, preparing it to be the 2nd argument?
 
 ----------------------------------
 |                                |
 |    return address = 401068     |    callq 401440 <read_six_numbers>  --->  read_six_numbers(%rdi, %rsi)  //  your input and the value of the stack pointer?
 |                                |
 ----------------------------------  <---  %rsp = 0x7FFFFFFFE738
+                                  
+                                      sub $0x18, %rsp  --->  %rsp -= 24  //  create space for 3, 8-byte "slots" on the stack
+                                  
+----------------------------------
+|                                |
+|                                |    (memory address = 0x7FFFFFFFE738)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE730
+|                                |
+|                                |    (memory address = 0x7FFFFFFFE730)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE728
+|                                |
+|         0x7FFFFFFFE754         |    (memory address = 0x7FFFFFFFE728)
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE720
+|                                |
+|         0x7FFFFFFFE750         |    (memory address = 0x7FFFFFFFE720)
+|                                |
+----------------------------------
+                                  
+                                      mov %rsi, %rdx  --->  %rdx = 0x7FFFFFFFE740  //  preparing the 3rd argument?
 
-                                      WYLO .... start tracing <read_six_numbers> ... and remember that you saw this in the list of strings: %d %d %d %d %d %d
+                                      lea 0x4(%rsi), %rcx  --->  %rcx = 0x7FFFFFFFE744  //  preparing the 4th argument?
+
+                                      lea 0x14(%rsi),%rax  --->  %rax = 0x7FFFFFFFE754
+
+                                      mov %rax, 0x8(%rsp)  --->  store %rax in memory at address 0x7FFFFFFFE728
+
+                                      lea 0x10(%rsi), %rax  --->  %rax = 0x7FFFFFFFE750
+
+                                      mov %rax, (%rsp)  --->  store %rax in memory at address 0x7FFFFFFFE720
+
+                                      lea 0xc(%rsi), %r9  --->  %r9 = 0x7FFFFFFFE74C  //  preparing the 6th argument?
+
+                                      lea 0x8(%rsi), %r8  --->  %r8 = 0x7FFFFFFFE748  // preparing the 5th argument?
+
+                                      mov $0x40249e, %esi  --->  %esi = 0x40249e  //  preparing the 2nd argument?
+
+                                      mov $0x0, %eax  --->  %eax = 0x0  //  preparing the return value?
+----------------------------------
+|                                |
+|    return address = 401473     |    callq 400ac8 <__isoc99_sscanf@plt>  --->  sscanf(%rdi, %esi)  //  your input, "%d %d %d %d %d %d", apparently six int*
+|                                |
+----------------------------------  <---  %rsp = 0x7FFFFFFFE718
+                                  
+                                      ...at some point, sscanf puts 0x6 into %eax (the return value)
+
+                                      cmp $0x5, %eax  --->  do 0x6 - 0x5, then set ZF to 0 because they're not equal
+
+                                      jg 40147d <read_six_numbers+0x3d>  --->  if (%eax was greater than 0x5) { go to 40147d }
+
+                                      add $0x18, %rsp  --->  Based on gdb, %rsp is somehow 0x7fffffffe748 at this point
+
+                                      retq  --->  %rsp += 0x8  //  But this puts the stack pointer at 0x7FFFFFFFE750, which makes no sense
+
+
+
+
+    *** *** *** *** ***    BEGIN BETTER TRACKING    *** *** *** *** ***
+
+
+
+
+Unfortunately gdb is giving inconsistent results for the value of %rsp after calling read_six_numbers(); however, (%rsp) is consistently 0x1
+
+401068:	83 3c 24 01          	cmpl   $0x1,(%rsp)  --->  do 0x1 - 0x1, then set ZF to 1 because they're equal
+
+40106c:	74 05                	je     401073 <phase_2+0x19>  --->  jump to address 401073
+
+401073:	48 89 e5             	mov    %rsp,%rbp  --->  %rbp = 0x7fffffffe750  //  set the frame pointer equal to the stack pointer?
+
+401076:	48 8d 5c 24 04       	lea    0x4(%rsp),%rbx  --->  %rbx = 0x7FFFFFFFE754
+
+40107b:	48 83 c5 18          	add    $0x18,%rbp  --->  %rbp = 0x7FFFFFFFE768
+
+40107f:	8b 43 fc             	mov    -0x4(%rbx),%eax  --->  %eax = (0x7FFFFFFFE754 - 4)  --->  %eax = (0x7FFFFFFFE750)  --->  %eax = 1  //  Are you sure?
+
+401082:	01 c0                	add    %eax,%eax  --->  %eax = 2
+
+401084:	39 03                	cmp    %eax,(%rbx)  --->  do (%rbx) - %eax
 
 
 
