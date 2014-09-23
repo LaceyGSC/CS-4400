@@ -7,8 +7,22 @@ int switch3(int *p1, int *p2, mode_t action)
 	int result = 0;
 	switch (action) {
 	case MODE_A:
-
+		result = *p1;
+		*p1 = *p2;
 		break;
+	case MODE_B:
+		result  = *p2;
+		result += *p1;
+		*p2 = result;
+		break;
+	case MODE_C:
+		*p2 = 15;
+		result = *p1;
+		break;
+	case MODE_D:
+		*p2 = *p1;
+	case MODE_E:
+		result = 17;
 	}
 	return result;
 }
@@ -20,11 +34,56 @@ p2     at %ebp + 12
 action at %ebp + 16
 result in %edx = -1
 
-.L13:								//  MODE_A
-	movl	8(%ebp), %eax   -->  WYLO ....
-	movl	(%eax), %edx
-	movl	12(%ebp), %ecx
-	movl	(%ecx), %eax
-	movl	8(%ebp),%ecx
-	movl	%eax, (%ecx)
+//  MODE_A
+.L13:
+	movl	 8(%ebp),  %eax   -->  Load the address in  p1 into %eax
+	movl	  (%eax),  %edx   -->  Load the value   in *p1 into %edx
+	movl	12(%ebp),  %ecx   -->  Load the address in  p2 into %ecx
+	movl	  (%ecx),  %eax   -->  Load the value   in *p2 into %eax
+	movl	 8(%ebp),  %ecx   -->  Load the address in  p1 into %ecx
+	movl	    %eax, (%ecx)  -->  Put the value of %eax into the address in %ecx
 	jmp		.L19
+
+// MODE_B
+.L14:
+	movl	12(%ebp),  %edx   -->  Load the address in p2 into %edx (result)
+	movl	  (%edx),  %eax   -->  Load the value pointed to by result into %eax
+	movl	    %eax,  %edx   -->  Move the value in %eax into %edx (result)
+	movl	 8(%ebp),  %ecx   -->  Load the address in p1 into %ecx
+	addl	  (%ecx),  %edx   -->  Add the value in *p1 to result
+	movl	12(%ebp),  %eax   -->  Load the address of p2 into %eax
+	movl	    %edx, (%eax)  -->  Load return into the value of *p2
+
+// MODE_C
+.L15:
+	movl	12(%ebp),  %edx   -->  
+	movl	     $15, (%edx)  -->  
+	movl	 8(%ebp),  %ecx   -->  
+	movl	  (%ecx),  %edx   -->  
+
+// MODE_D
+.L16:
+	movl	 8(%ebp),  %edx   -->  
+	movl	  (%edx),  %eax   -->  
+	movl	12(%ebp),  %ecx   -->  
+	movl	    %eax, (%ecx)  -->  
+	movl	      $17, %edx   -->  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
