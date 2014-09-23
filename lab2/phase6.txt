@@ -43,7 +43,7 @@
   400fbe:	bd 01 00 00 00       	mov    $0x1,%ebp                  --> %ebp = 0x1
   400fc3:	be b0 38 60 00       	mov    $0x6038b0,%esi             --> %esi = ???
   400fc8:	48 89 e7             	mov    %rsp,%rdi                  --> %rdi = 0x7fffffffe6f0
-  400fcb:	eb 19                	jmp    400fe6 <phase_6+0xab>      --> phase_6('6 5 4 3 2 1')
+  400fcb:	eb 19                	jmp    400fe6 <phase_6+0xab>
   400fcd:	48 8b 52 08          	mov    0x8(%rdx),%rdx
   400fd1:	83 c0 01             	add    $0x1,%eax
   400fd4:	39 c8                	cmp    %ecx,%eax
@@ -52,7 +52,7 @@
   400fdc:	48 83 c3 04          	add    $0x4,%rbx
   400fe0:	48 83 fb 18          	cmp    $0x18,%rbx
   400fe4:	74 10                	je     400ff6 <phase_6+0xbb>
-  400fe6:	41 8b 0c 18          	mov    (%r8,%rbx,1),%ecx
+  400fe6:	41 8b 0c 18          	mov    (%r8,%rbx,1),%ecx          -->  WYLO .... phase_6 isn't recursive like you thought...it jumps here after reversing your numbers
   400fea:	89 e8                	mov    %ebp,%eax
   400fec:	48 89 f2             	mov    %rsi,%rdx
   400fef:	83 f9 01             	cmp    $0x1,%ecx
