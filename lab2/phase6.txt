@@ -1,0 +1,135 @@
+
+
+0000000000400f3b <phase_6>:
+  400f3b:	41 55                	push   %r13
+  400f3d:	41 54                	push   %r12
+  400f3f:	55                   	push   %rbp
+  400f40:	53                   	push   %rbx
+  400f41:	48 83 ec 58          	sub    $0x58,%rsp
+  400f45:	4c 8d 64 24 30       	lea    0x30(%rsp),%r12            -->  %r12 = 0x7fffffffe720
+  400f4a:	4c 89 e6             	mov    %r12,%rsi                  -->  %rsi = 0x7fffffffe720
+  400f4d:	e8 ee 04 00 00       	callq  401440 <read_six_numbers>
+  400f52:	4c 89 e5             	mov    %r12,%rbp                  -->  %rbp = 0x7fffffffe720
+  400f55:	41 bd 00 00 00 00    	mov    $0x0,%r13d                 -->  %r13 = 0x0
+  400f5b:	8b 45 00             	mov    0x0(%rbp),%eax             -->  %eax = 2
+  400f5e:	83 e8 01             	sub    $0x1,%eax                  -->  2 -= 1
+  400f61:	83 f8 05             	cmp    $0x5,%eax                  -->  i.e. your first must be <= 6 (&& >= 1 ?)
+  400f64:	76 05                	jbe    400f6b <phase_6+0x30>
+  400f66:	e8 9f 04 00 00       	callq  40140a <explode_bomb>
+  400f6b:	41 83 c5 01          	add    $0x1,%r13d                 -->  %r13 = 0x2
+  400f6f:	41 83 fd 06          	cmp    $0x6,%r13d                 -->  if (%r13 == 0x6)
+  400f73:	74 22                	je     400f97 <phase_6+0x5c>               j 400f97
+  400f75:	44 89 eb             	mov    %r13d,%ebx                 -->  %ebx = 0x2
+  400f78:	48 63 c3             	movslq %ebx,%rax                  -->  %rax = 0x5  //  move signed 32-bit?
+  400f7b:	8b 55 00             	mov    0x0(%rbp),%edx             -->  %edx = your second number
+  400f7e:	3b 54 84 30          	cmp    0x30(%rsp,%rax,4),%edx     -->  if ((%edx - ((%rax * 4) + %rsp + 0x30)) != 0)
+  400f82:	75 05                	jne    400f89 <phase_6+0x4e>               j 400f89
+  400f84:	e8 81 04 00 00       	callq  40140a <explode_bomb>
+  400f89:	83 c3 01             	add    $0x1,%ebx                  -->  %ebx = 0x6
+  400f8c:	83 fb 05             	cmp    $0x5,%ebx
+  400f8f:	7e e7                	jle    400f78 <phase_6+0x3d>
+  400f91:	48 83 c5 04          	add    $0x4,%rbp                  -->  %rbp = 0x7fffffffe728
+  400f95:	eb c4                	jmp    400f5b <phase_6+0x20>  //  AFTER MAKING SURE EACH NUMBER DOESN'T EQUAL THE NEXT
+  400f97:	48 8d 4c 24 48       	lea    0x48(%rsp),%rcx            -->  %rcx = 0x7FFFFFFFE738
+  400f9c:	ba 07 00 00 00       	mov    $0x7,%edx                  -->  %edx = 0x7
+  400fa1:	89 d0                	mov    %edx,%eax                  -->  %eax = 0x6
+  400fa3:	41 2b 04 24          	sub    (%r12),%eax                -->  %eax = 0x6 - your first number
+  400fa7:	41 89 04 24          	mov    %eax,(%r12)                -->  0x7fffffffe724 = 0x5
+  400fab:	49 83 c4 04          	add    $0x4,%r12                  -->  %r12 += 4 = 0x7fffffffe728
+  400faf:	49 39 cc             	cmp    %rcx,%r12                  -->  
+  400fb2:	75 ed                	jne    400fa1 <phase_6+0x66>  //  AFTER REVERSING YOUR INPUT (0x7f...e720 = your 6th and 0x7f...e734 = your 1st)
+  400fb4:	bb 00 00 00 00       	mov    $0x0,%ebx                  --> %ebx = 0x0
+  400fb9:	4c 8d 44 24 30       	lea    0x30(%rsp),%r8             --> %r8  = 0x7FFFFFFFE720  //  the address of your 6th
+  400fbe:	bd 01 00 00 00       	mov    $0x1,%ebp                  --> %ebp = 0x1
+  400fc3:	be b0 38 60 00       	mov    $0x6038b0,%esi             --> %esi = ???
+  400fc8:	48 89 e7             	mov    %rsp,%rdi                  --> %rdi = 0x7fffffffe6f0
+  400fcb:	eb 19                	jmp    400fe6 <phase_6+0xab>      --> phase_6('6 5 4 3 2 1')
+  400fcd:	48 8b 52 08          	mov    0x8(%rdx),%rdx
+  400fd1:	83 c0 01             	add    $0x1,%eax
+  400fd4:	39 c8                	cmp    %ecx,%eax
+  400fd6:	75 f5                	jne    400fcd <phase_6+0x92>
+  400fd8:	48 89 14 5f          	mov    %rdx,(%rdi,%rbx,2)
+  400fdc:	48 83 c3 04          	add    $0x4,%rbx
+  400fe0:	48 83 fb 18          	cmp    $0x18,%rbx
+  400fe4:	74 10                	je     400ff6 <phase_6+0xbb>
+  400fe6:	41 8b 0c 18          	mov    (%r8,%rbx,1),%ecx
+  400fea:	89 e8                	mov    %ebp,%eax
+  400fec:	48 89 f2             	mov    %rsi,%rdx
+  400fef:	83 f9 01             	cmp    $0x1,%ecx
+  400ff2:	7f d9                	jg     400fcd <phase_6+0x92>
+  400ff4:	eb e2                	jmp    400fd8 <phase_6+0x9d>
+  400ff6:	48 8b 1c 24          	mov    (%rsp),%rbx
+  400ffa:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
+  400fff:	48 89 43 08          	mov    %rax,0x8(%rbx)
+  401003:	48 8b 54 24 10       	mov    0x10(%rsp),%rdx
+  401008:	48 89 50 08          	mov    %rdx,0x8(%rax)
+  40100c:	48 8b 44 24 18       	mov    0x18(%rsp),%rax
+  401011:	48 89 42 08          	mov    %rax,0x8(%rdx)
+  401015:	48 8b 54 24 20       	mov    0x20(%rsp),%rdx
+  40101a:	48 89 50 08          	mov    %rdx,0x8(%rax)
+  40101e:	48 8b 44 24 28       	mov    0x28(%rsp),%rax
+  401023:	48 89 42 08          	mov    %rax,0x8(%rdx)
+  401027:	48 c7 40 08 00 00 00 	movq   $0x0,0x8(%rax)
+  40102e:	00 
+  40102f:	bd 00 00 00 00       	mov    $0x0,%ebp
+  401034:	48 8b 43 08          	mov    0x8(%rbx),%rax
+  401038:	8b 13                	mov    (%rbx),%edx
+  40103a:	3b 10                	cmp    (%rax),%edx
+  40103c:	7d 05                	jge    401043 <phase_6+0x108>
+  40103e:	e8 c7 03 00 00       	callq  40140a <explode_bomb>
+  401043:	48 8b 5b 08          	mov    0x8(%rbx),%rbx
+  401047:	83 c5 01             	add    $0x1,%ebp
+  40104a:	83 fd 05             	cmp    $0x5,%ebp
+  40104d:	75 e5                	jne    401034 <phase_6+0xf9>
+  40104f:	48 83 c4 58          	add    $0x58,%rsp
+  401053:	5b                   	pop    %rbx
+  401054:	5d                   	pop    %rbp
+  401055:	41 5c                	pop    %r12
+  401057:	41 5d                	pop    %r13
+  401059:	c3                   	retq   
+
+
+0000000000401440 <read_six_numbers>:
+  401440: 48 83 ec 18           sub    $0x18,%rsp
+  401444: 48 89 f2              mov    %rsi,%rdx                       // 3rd arg = 0x7f...e720 = your 1st
+  401447: 48 8d 4e 04           lea    0x4(%rsi),%rcx                  // 4th arg = 0x7f...e724 = your 2nd
+  40144b: 48 8d 46 14           lea    0x14(%rsi),%rax                 // 8th arg = 0x7f...e734 = your 6th
+  40144f: 48 89 44 24 08        mov    %rax,0x8(%rsp)
+  401454: 48 8d 46 10           lea    0x10(%rsi),%rax                 // 7th arg = 0x7f...e730 = your 5th
+  401458: 48 89 04 24           mov    %rax,(%rsp)
+  40145c: 4c 8d 4e 0c           lea    0xc(%rsi),%r9                   // 6th arg = 0x7f...e72c = your 4th
+  401460: 4c 8d 46 08           lea    0x8(%rsi),%r8                   // 5th arg = 0x7f...e728 = your 3rd
+  401464: be 9e 24 40 00        mov    $0x40249e,%esi
+  401469: b8 00 00 00 00        mov    $0x0,%eax
+  40146e: e8 55 f6 ff ff        callq  400ac8 <__isoc99_sscanf@plt>
+  401473: 83 f8 05              cmp    $0x5,%eax
+  401476: 7f 05                 jg     40147d <read_six_numbers+0x3d>  //
+  401478: e8 8d ff ff ff        callq  40140a <explode_bomb>
+  40147d: 48 83 c4 18           add    $0x18,%rsp
+  401481: c3                    retq   
+
+
+0x604078 <input_strings+408>: 0x00362035
+                                   6   5
+0x604074 <input_strings+404>: 0x20342033
+                                   4   3
+0x604070 <input_strings+400>: 0x20322031
+                                   2   1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

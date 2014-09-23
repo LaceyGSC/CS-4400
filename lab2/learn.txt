@@ -8,7 +8,7 @@ gdb bomb
 handle all nopass
 break explode_bomb
 set step-mode on
-break *0x4010e7
+break *0x400f4d
 run ./input.txt
 
 info registers
@@ -40,6 +40,7 @@ Border relations with Canada have never been better.
 1 2 4 8 16 32
 1 4294966728
 2 4
+71M657
 
 
 
