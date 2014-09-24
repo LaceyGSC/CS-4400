@@ -45,6 +45,22 @@ int loop(int x, int n)
 	return result;
 }
 
+#define M 13
+typedef int Marray_t[M][M];
+
+void transpose(Marray_t A)
+{
+	int j;
+	int *col = &A[0][0];
+	int *row = &A[1][0];
+	for (j = 1; j < M; j++) {
+		int t = *row;
+		*row = col[j];
+		col[j] = t;
+		row += M;
+	}
+}
+
 int main()
 {
 	char a = (char) 0x40;
