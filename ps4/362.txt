@@ -2,7 +2,7 @@
 
 %ecx = value of j
 
-%edi = value of i
+%edi = value of M
 
 %ebx must be a pointer to the "row" because it is being increased by 52 in each iteration. So %ebx = int *row = &A[1][0]
 
