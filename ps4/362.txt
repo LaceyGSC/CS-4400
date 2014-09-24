@@ -17,6 +17,21 @@
 %edx is probably a temporary for storing the value of the column because it is later stored in the memory address (%ebx), which is the pointer to the "row"
 
 
+======================
+	C Code Version
+======================
+
+#define M 13
+typedef int Marray_t[M][M];
+
+void transpose(Marray_t A)
+{
+	
+}
+
+
+
+
 .L3:
 	movl	         (%ebx),  %eax            //  Load some value from memory into %eax
 	movl	(%esi, %ecx, 4),  %edx            //  Load the value at address ((4 * %ecx) + %esi) into %edx
