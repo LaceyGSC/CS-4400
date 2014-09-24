@@ -1,0 +1,30 @@
+
+
+%ecx = value of j
+
+%edi = value of i
+
+%ebx must be a pointer to the "row" because it is being increased by 52 in each iteration. So %ebx = int* Arow = &i
+
+%eax is probably t because, at the beginning of each loop, %eax = the value at memory address (%ebx)
+                                                              t = *Arow[0]
+
+%esi is probably a pointer to the "column" because we're loading the value at memory address ((4 * j) + %esi)
+                                                                                               4 * 0  + %esi = %esi
+                                                                                               4 * 1  + %esi = %esi + 4
+                                                                                               4 * 2  + %esi = %esi + 8
+
+%edx is probably a temporary for storing the value of the column because it is later stored in the memory address (%ebx), which is the pointer to the "row"
+
+
+.L3:
+	movl	         (%ebx),  %eax            //  Load some value from memory into %eax
+	movl	(%esi, %ecx, 4),  %edx            //  Load the value at address ((4 * %ecx) + %esi) into %edx
+	                                                                        ((4 *   j ) + %esi)
+	movl	           %eax, (%esi, %ecx, 4)  //  Load the value in %eax into memory at address ((%ecx * 4) + %esi)
+	                                                                                            ((j    * 4) + %esi)
+	addl	             $1,  %ecx            //  j++
+	movl	           %edx, (%ebx)           //  Load the value in %edx into memory at the address in %ebx
+	addl	            $52,  %ebx            //  %ebx += 52
+	cmpl	           %edi,  %ecx            // if (j < i)
+	  jl	.L3                               //     go to .L3

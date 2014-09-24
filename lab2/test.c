@@ -35,6 +35,8 @@ int switch3(int *p1, int *p2, mode_t action)
 
 int loop(int x, int n)
 {
+	int z = add(3, 5);
+
 	int result = -1;
 	int mask;
 	for (mask = 1; mask != 0; mask = mask << n) {
