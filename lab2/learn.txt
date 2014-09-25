@@ -8,7 +8,8 @@ gdb bomb
 handle all nopass
 break explode_bomb
 set step-mode on
-break *0x400f4d
+	// break *0x400fe6
+break *0x40103c
 run ./input.txt
 
 info registers
@@ -26,7 +27,7 @@ handle all nopass
 break explode_bomb
 break *0x400db6
 r
-set variable $edi = 0x4023D7
+set variable $edi = 0x6038b0
 s
 signal SIGKILL
 
@@ -41,6 +42,7 @@ Border relations with Canada have never been better.
 1 4294966728
 2 4
 71M657
+4 3 2 1 6 5
 
 
 

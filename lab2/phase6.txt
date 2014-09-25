@@ -38,49 +38,137 @@
   400fab:	49 83 c4 04          	add    $0x4,%r12                  -->  %r12 += 4 = 0x7fffffffe728
   400faf:	49 39 cc             	cmp    %rcx,%r12                  -->  
   400fb2:	75 ed                	jne    400fa1 <phase_6+0x66>  //  AFTER REVERSING YOUR INPUT (0x7f...e720 = your 6th and 0x7f...e734 = your 1st)
-  400fb4:	bb 00 00 00 00       	mov    $0x0,%ebx                  --> %ebx = 0x0
-  400fb9:	4c 8d 44 24 30       	lea    0x30(%rsp),%r8             --> %r8  = 0x7FFFFFFFE720  //  the address of your 6th
-  400fbe:	bd 01 00 00 00       	mov    $0x1,%ebp                  --> %ebp = 0x1
-  400fc3:	be b0 38 60 00       	mov    $0x6038b0,%esi             --> %esi = ???
-  400fc8:	48 89 e7             	mov    %rsp,%rdi                  --> %rdi = 0x7fffffffe6f0
+  400fb4:	bb 00 00 00 00       	mov    $0x0,%ebx                  -->  %ebx = 0x0
+  400fb9:	4c 8d 44 24 30       	lea    0x30(%rsp),%r8             -->  %r8  = 0x7FFFFFFFE720  //  the address of your 6th
+  400fbe:	bd 01 00 00 00       	mov    $0x1,%ebp                  -->  %ebp = 0x1
+  400fc3:	be b0 38 60 00       	mov    $0x6038b0,%esi             -->  %esi = An address that points to the letter F?
+  400fc8:	48 89 e7             	mov    %rsp,%rdi                  -->  %rdi = 0x7fffffffe6f0
   400fcb:	eb 19                	jmp    400fe6 <phase_6+0xab>
-  400fcd:	48 8b 52 08          	mov    0x8(%rdx),%rdx
-  400fd1:	83 c0 01             	add    $0x1,%eax
-  400fd4:	39 c8                	cmp    %ecx,%eax
-  400fd6:	75 f5                	jne    400fcd <phase_6+0x92>
-  400fd8:	48 89 14 5f          	mov    %rdx,(%rdi,%rbx,2)
-  400fdc:	48 83 c3 04          	add    $0x4,%rbx
-  400fe0:	48 83 fb 18          	cmp    $0x18,%rbx
-  400fe4:	74 10                	je     400ff6 <phase_6+0xbb>
-  400fe6:	41 8b 0c 18          	mov    (%r8,%rbx,1),%ecx          -->  WYLO .... phase_6 isn't recursive like you thought...it jumps here after reversing your numbers
-  400fea:	89 e8                	mov    %ebp,%eax
-  400fec:	48 89 f2             	mov    %rsi,%rdx
-  400fef:	83 f9 01             	cmp    $0x1,%ecx
-  400ff2:	7f d9                	jg     400fcd <phase_6+0x92>
+  400fcd:	48 8b 52 08          	mov    0x8(%rdx),%rdx             -->  %rdx = (0x6038b0 + 8) = 0x6038a0
+                                                                              (0x6038a0 + 8) = 0x603890
+                                                                              (0x603890 + 8) = 0x603880
+                                                                              (0x603880 + 8) = 0x603870
+                                                                              (0x603870 + 8) = 0x603860
+
+                                                                              (0x6038b0 + 8) = 0x6038a0
+                                                                              (0x6038a0 + 8) = 0x603890
+                                                                              (0x603890 + 8) = 0x603880
+                                                                              (0x603880 + 8) = 0x603870
+
+                                                                              (0x6038b0 + 8) = 0x6038a0
+                                                                              (0x6038a0 + 8) = 0x603890
+                                                                              (0x603890 + 8) = 0x603880
+
+                                                                              (0x6038b0 + 8) = 0x6038a0
+                                                                              (0x6038a0 + 8) = 0x603890
+
+                                                                              (0x6038b0 + 8) = 0x6038a0
+
+  400fd1:	83 c0 01             	add    $0x1,%eax                  -->  %eax = 2
+                                                                              3
+                                                                              4
+                                                                              5
+                                                                              6
+
+                                                                              2
+                                                                              3
+                                                                              4
+                                                                              5
+
+                                                                              2
+                                                                              3
+                                                                              4
+
+                                                                              2
+                                                                              3
+
+                                                                              2
+
+  400fd4:	39 c8                	cmp    %ecx,%eax                  -->  if (2 != your 6th)
+                                                                           3
+                                                                           4
+                                                                           5
+                                                                           6
+
+                                                                           2 != your 5th
+                                                                           3
+                                                                           4
+                                                                           5
+
+                                                                           2 != your 4th
+                                                                           3
+                                                                           4
+
+                                                                           2 != your 3rd
+                                                                           3
+
+                                                                           2 != your 2nd
+
+  400fd6:	75 f5                	jne    400fcd <phase_6+0x92>               j 400fcd
+  400fd8:	48 89 14 5f          	mov    %rdx,(%rdi,%rbx,2)         -->  put 0x603860 into memory at address ((0  * 2) + 0x7fffffffe6f0)
+                                                                           0x603870                        ((4  * 2) + 0x7fffffffe6f0) = 0x7fffffffe6f8
+                                                                           0x603880                        ((8  * 2) + 0x7fffffffe6f0) = 0x7FFFFFFFE700
+                                                                           0x603890                        ((12 * 2) + 0x7fffffffe6f0) = 0x7FFFFFFFE708
+                                                                           0x6038a0                        ((16 * 2) + 0x7fffffffe6f0) = 0x7FFFFFFFE710
+                                                                           0x6038b0                        ((20 * 2) + 0x7fffffffe6f0) = 0x7FFFFFFFE718 (had 0x00401492)
+
+  400fdc:	48 83 c3 04          	add    $0x4,%rbx                  -->  %rbx = 4
+                                                                              8
+                                                                              12
+                                                                              16
+                                                                              20
+                                                                              24
+
+  400fe0:	48 83 fb 18          	cmp    $0x18,%rbx                 -->  if (%rbx == 24)
+  400fe4:	74 10                	je     400ff6 <phase_6+0xbb>               j 400ff6
+
+  400fe6:	41 8b 0c 18          	mov    (%r8,%rbx,1),%ecx          -->  %ecx = your 6th
+                                                                              your 5th
+                                                                              your 4th
+                                                                              your 3rd
+                                                                              your 2nd
+                                                                              your 1st
+
+  400fea:	89 e8                	mov    %ebp,%eax                  -->  %eax = 1
+  400fec:	48 89 f2             	mov    %rsi,%rdx                  -->  %rdx = 0x6038b0
+  400fef:	83 f9 01             	cmp    $0x1,%ecx                  -->  if (%ecx (your 6th) > 1)
+                                                                                 your 5th
+                                                                                 your 4th
+                                                                                 your 3rd
+                                                                                 your 2nd
+                                                                                 your 1st
+
+  400ff2:	7f d9                	jg     400fcd <phase_6+0x92>               j 400fcd
   400ff4:	eb e2                	jmp    400fd8 <phase_6+0x9d>
-  400ff6:	48 8b 1c 24          	mov    (%rsp),%rbx
-  400ffa:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
-  400fff:	48 89 43 08          	mov    %rax,0x8(%rbx)
-  401003:	48 8b 54 24 10       	mov    0x10(%rsp),%rdx
-  401008:	48 89 50 08          	mov    %rdx,0x8(%rax)
-  40100c:	48 8b 44 24 18       	mov    0x18(%rsp),%rax
-  401011:	48 89 42 08          	mov    %rax,0x8(%rdx)
-  401015:	48 8b 54 24 20       	mov    0x20(%rsp),%rdx
-  40101a:	48 89 50 08          	mov    %rdx,0x8(%rax)
-  40101e:	48 8b 44 24 28       	mov    0x28(%rsp),%rax
-  401023:	48 89 42 08          	mov    %rax,0x8(%rdx)
-  401027:	48 c7 40 08 00 00 00 	movq   $0x0,0x8(%rax)
+  400ff6:	48 8b 1c 24          	mov    (%rsp),%rbx                -->  %rbx = (0x7fffffffe6f0) = 0x603860
+  400ffa:	48 8b 44 24 08       	mov    0x8(%rsp),%rax             -->  %rax = (0x7fffffffe6f8) = 0x603870
+  400fff:	48 89 43 08          	mov    %rax,0x8(%rbx)             -->  load 0x603870 into (0x603860 + 8) ... was ?
+  401003:	48 8b 54 24 10       	mov    0x10(%rsp),%rdx            -->  %rdx = (0x7fffffffe6f0 + 0x10) = 0x603880
+  401008:	48 89 50 08          	mov    %rdx,0x8(%rax)             -->  load 0x603880 into (0x603870 + 8) ... was 0x00603860
+  40100c:	48 8b 44 24 18       	mov    0x18(%rsp),%rax            -->  %rax = (0x7fffffffe6f0 + 0x18) = 0x603890
+  401011:	48 89 42 08          	mov    %rax,0x8(%rdx)             -->  load 0x603890 into (0x603880 + 8) ... was 0x00603870
+  401015:	48 8b 54 24 20       	mov    0x20(%rsp),%rdx            -->  %rdx = (0x7fffffffe6f0 + 0x20) = 0x6038a0
+  40101a:	48 89 50 08          	mov    %rdx,0x8(%rax)             -->  load 0x6038a0 into (0x603890 + 8) ... was 0x00603880
+  40101e:	48 8b 44 24 28       	mov    0x28(%rsp),%rax            -->  %rax = (0x7fffffffe6f0 + 0x28) = 0x6038b0
+  401023:	48 89 42 08          	mov    %rax,0x8(%rdx)             -->  load 0x6038b0 into (0x6038a0 + 8) ... was 0x00603890
+  401027:	48 c7 40 08 00 00 00 	movq   $0x0,0x8(%rax)             -->  load 0x0 into (0x6038b0 + 8)      ... was 0x006038a0
   40102e:	00 
-  40102f:	bd 00 00 00 00       	mov    $0x0,%ebp
-  401034:	48 8b 43 08          	mov    0x8(%rbx),%rax
-  401038:	8b 13                	mov    (%rbx),%edx
-  40103a:	3b 10                	cmp    (%rax),%edx
-  40103c:	7d 05                	jge    401043 <phase_6+0x108>
+  40102f:	bd 00 00 00 00       	mov    $0x0,%ebp                  -->  %ebp = 0
+  401034:	48 8b 43 08          	mov    0x8(%rbx),%rax             -->  %rax = (0x603860 + 8) = 0x603870
+  401038:	8b 13                	mov    (%rbx),%edx                -->  %edx = 0x177
+  40103a:	3b 10                	cmp    (%rax),%edx                -->  if (%edx >= (%rax))  //  if (375 >= 619)  //  1 2 3 4 5 6
+                                                                                                if (375 >= 733)  //  1 3 4 5 6 2
+                                                                                                if (375 >= 355)  //  1 4 5 6 2 3
+                                                                                                if (375 >= 619)  //  1 2 5 6 3 4
+                                                                                                if (375 >= 619)  //  1 2 6 3 4 5
+                                                                                                if (619 >= 326)  //  2 6 3 4 5 1
+                                                                                                if ( >= )  //  2 3 4 5 6 1
+  40103c:	7d 05                	jge    401043 <phase_6+0x108>              j 401043
   40103e:	e8 c7 03 00 00       	callq  40140a <explode_bomb>
-  401043:	48 8b 5b 08          	mov    0x8(%rbx),%rbx
-  401047:	83 c5 01             	add    $0x1,%ebp
-  40104a:	83 fd 05             	cmp    $0x5,%ebp
-  40104d:	75 e5                	jne    401034 <phase_6+0xf9>
+  401043:	48 8b 5b 08          	mov    0x8(%rbx),%rbx             -->  %rbx = 0x6038b0
+  401047:	83 c5 01             	add    $0x1,%ebp                  -->  %ebp = 1
+  40104a:	83 fd 05             	cmp    $0x5,%ebp                  -->  if (%ebp != 5)
+  40104d:	75 e5                	jne    401034 <phase_6+0xf9>               j 401034
   40104f:	48 83 c4 58          	add    $0x58,%rsp
   401053:	5b                   	pop    %rbx
   401054:	5d                   	pop    %rbp
@@ -115,6 +203,17 @@
                                    4   3
 0x604070 <input_strings+400>: 0x20322031
                                    2   1
+
+
+Is this how you want it?
+
+0x603890 <node3>: 0x00000355
+0x603880 <node4>: 0x000002dd
+0x603870 <node5>: 0x0000026b
+0x603860 <node6>: 0x00000177
+0x6038b0 <node1>: 0x00000146
+0x6038a0 <node2>: 0x00000092
+
 
 
 
