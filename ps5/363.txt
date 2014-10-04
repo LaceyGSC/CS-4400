@@ -1,0 +1,50 @@
+movl	8(%ebp), %eax			//  n = 3
+leal	(%eax,%eax), %edx		//  2n = 6
+leal	(%edx,%eax), %ecx		//  3n = 9
+movl	%edx, %ebx				//  2n = 6
+leal	1(%edx), %eax			//  2n + 1 = 7
+movl	$0, %edx				//  0
+testl	%eax, %eax				//  %eax = (2n + 1) & (2n + 1)
+                                    %eax = 7 & 7
+jle		.L3						//  if (2n + 1 <= 0) { goto .L3; } // so if this condition is true (effectively meaning n <= -1), return 0
+                                    if (7      <= 0) { goto .L3; } // so don't go to .L3
+leal	0(,%ecx,4), %esi		//  12n = 36
+movl	16(%ebp), %edx			//  j = 2  //  index of the column to be summed
+movl	12(%ebp), %ecx			//  A
+leal	(%ecx,%edx,4), %eax		//  4j + A
+movl	$0, %edx				//  0
+movl	$1, %ecx				//  1
+addl	$2, %ebx				//  2n + 2 = 8
+.L4:
+addl	(%eax), %edx			//  %edx = the value from memory at some address in A[]
+addl	$1, %ecx				//  2
+addl	%esi, %eax				//  (4j + A) + 12n
+cmpl	%ebx, %ecx				//  if (%ecx != 2n + 2)
+jne		.L4						//		goto .L4;
+.L3:
+movl	%edx, %eax
+
+
+
+%ebp +  8 = n
+%ebp + 12 = A
+%ebp + 16 = j
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

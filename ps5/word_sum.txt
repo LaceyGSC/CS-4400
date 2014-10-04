@@ -1,0 +1,13 @@
+word_sum:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	movl	8(%ebp), %eax		//  the value of the address immediately above &y on the stack
+	movl	12(%ebp), %ebx		//  x
+	movl	16(%ebp), %edx		//  &y
+	movl	(%edx), %edx		//  y
+	movl	%ebx, %ecx			//  x
+	subl	%edx, %ecx			//  %ecx = x - y
+	movl	%ecx, 4(%eax)		//  put result of (x - y) onto stack two spots above &y
+	addl	%ebx, %edx			//  %edx = %edx + %ebx = y + x
+	movl	%edx, (%eax)		//  put result of (y + x) onto stack immediately above &y
