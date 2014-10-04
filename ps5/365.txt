@@ -1,5 +1,5 @@
 movl	12(%ebp), %eax
-movl	36(%eax), %edx
+movl	36(%eax), %edx  //  int v1 = q->t;
 addl	12(%eax), %edx
 movl	8(%ebp),  %eax
 movl	%edx, 92(%eax)
