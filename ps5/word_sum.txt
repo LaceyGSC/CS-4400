@@ -11,3 +11,4 @@ word_sum:
 	movl	%ecx, 4(%eax)		//  put result of (x - y) onto stack two spots above &y
 	addl	%ebx, %edx			//  %edx = %edx + %ebx = y + x
 	movl	%edx, (%eax)		//  put result of (y + x) onto stack immediately above &y
+	

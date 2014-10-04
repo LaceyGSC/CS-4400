@@ -1,0 +1,35 @@
+movl	12(%ebp), %eax
+movl	36(%eax), %edx
+addl	12(%eax), %edx
+movl	8(%ebp),  %eax
+movl	%edx, 92(%eax)
+
+typedef struct {
+	short x[A][B];
+	int y;
+} str1;
+
+typedef struct {
+	char array [B];
+	int t;
+	short s[B];
+	int u;
+} str2;
+
+void setVal(str1 *p, str2 *q) {
+
+	// Set v1 equal to the value of str2.t (i.e. the first value in memory after 
+	// the "array" member (which is B bytes long because it's an array of char)):
+	int v1 = q->t;
+
+	// Set v2 equal to the value of str2.u (i.e. the first value in memory after
+	//  the "s" member (which is B*2 bytes long because it's an array of short)):
+	int v2 = q->u;
+
+	// Set str1.y (i.e. the first value in memory after the "x" member (which is 
+	// (A+B)*2 bytes long because it's an array of short)) equal to v1 + v2:
+	p->y = v1+v2
+
+}
+
+WYLO .... Make a drawing of how str2 and str1 would be represented in memory (a flat array), remembering that p points to the address of str1...
