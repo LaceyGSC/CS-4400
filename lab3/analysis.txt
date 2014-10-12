@@ -449,7 +449,7 @@ Disassembly of section .text:
  8048c52:	55                   	push   %ebp
  8048c53:	89 e5                	mov    %esp,%ebp
  8048c55:	83 ec 18             	sub    $0x18,%esp
- 8048c58:	a1 ec c1 04 08       	mov    0x804c1ec,%eax
+ 8048c58:	a1 ec c1 04 08       	mov    0x804c1ec,%eax       //  Figure out how to load your cookie into memory at address 0x804c1ec
  8048c5d:	3b 05 e4 c1 04 08    	cmp    0x804c1e4,%eax
  8048c63:	75 1e                	jne    8048c83 <bang+0x31>
  8048c65:	89 44 24 04          	mov    %eax,0x4(%esp)
