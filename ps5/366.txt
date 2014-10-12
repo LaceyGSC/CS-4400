@@ -1,27 +1,32 @@
 
 push	%ebp
 mov		%esp, %ebp
-mov		0x8(%ebp), %eax
-mov		0xc(%ebp), %eax
-lea		(%eax,%eax,4), %eax
-add		0x4(%ecx,%eax,4), %eax
-mov		0xb8(%ecx), %edx
-add		(%ecx), %edx
-mov		%edx, 0x8(%ecx,%eax,4)
+mov		0x8(%ebp), %eax         //  %eax = i
+mov		0xc(%ebp), %ecx         //  %ecx = address of first byte of b_struct: &(bp->left)
+lea		(%eax,%eax,4), %eax     //  %eax = 5i
+add		0x4(%ecx,%eax,4), %eax  //  %eax = 5i + (the value from memory stored at address (4(5i) + &(bp->left) + 4))    //  
+mov		0xb8(%ecx), %edx        //  %edx = the value from memory stored at address (&(bp->left) + 184)                 //  %edx  = bp->right             ?
+add		(%ecx), %edx            //  %edx = %edx + the value from memory stored at address &(bp->left)                  //  int n = bp->left + bp->right  ?
+mov		%edx, 0x8(%ecx,%eax,4)  //  put the value from %edx into memory at address %eax(4) + &(bp->left) + 8           //  ap->x[ap->idx] = n            ?
 pop		%ebp
 ret
 
 
 
 typedef struct {
+	? x;              //  This is probably an integer array. But what is its size?
+	? idx;
+} a_struct;
+
+typedef struct {
 	int left;
-	a_struct a[CNT];
+	a_struct a[CNT];  //  This is simply an array a_struct's with CNT elements!
 	int right;
 } b_struct;
 
 void test(int i, b_struct *bp)
 {
-	int n = bp->left + bp->right;
-	a_struct *ap = &bp->a[i];
-	ap->x[ap->idx] = n;
+	int n = bp->left + bp->right;  //  Set n equal to the sum of "left" and "right" from the passed-in b_struct
+	a_struct *ap = &bp->a[i];      //  Declare ap as an a_struct pointer and set it equal to the address of the ith a_struct from the passed-in b_struct
+	ap->x[ap->idx] = n;            //  Set the value of ap.x[ap.idx] equal to n
 }
