@@ -1,0 +1,6 @@
+movl	8(%ebp),   %edx   //  %edx = up
+movl	4(%edx),   %ecx   //  %ecx = next
+movl	 (%ecx),   %eax   //  %eax = another_ele.p
+movl	 (%eax),   %eax   //  %eax = *another_ele.p (so the int pointed to by p)
+subl	 (%edx),   %eax   //  %eax = *another_ele.p - x
+movl	  %eax , 4(%ecx)  //  another_ele.y = %eax
