@@ -39,7 +39,7 @@ void psum1a(float a[], float p[], long int n)
 {
 	long int i;
 	int limit = n - 1;
-	float last_val, val;  //  last_val holds p[i-1]; val holds p[i]
+	float last_val, val;
 	int i_1 = 1;          //  i_1 holds i + 1
 	last_val = p[0] = a[0];
 	for (i = 1; i < limit; i += 2) {

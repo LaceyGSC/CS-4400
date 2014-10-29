@@ -61,6 +61,59 @@ void transpose(Marray_t A)
 	}
 }
 
+void psum2way(float a[], float p[], long int n)
+{
+	long int i;
+	int limit = n - 1;
+	float last_val, val;
+	int i_1 = 1;
+	last_val = p[0] = a[0];
+	for (i = 1; i < limit; i += 2) {
+		i_1 = i + 1;
+		int a_i   = a[i];
+		int a_i_1 = a[i_1];
+		p[i] = last_val + a_i;
+		val = last_val + (a_i + a_i_1);
+		p[i_1] = val;
+		last_val = val;
+	}
+
+	for (; i < n; i++) {
+		val  = last_val + a[i];
+		p[i] = val;
+		last_val = val;
+	}
+}
+
+void psum3way(float a[], float p[], long int n)
+{
+	long int i;
+	int limit = n - 2;
+	float last_val, val;
+	int i_1 = 1;
+	int i_2 = 2;
+	last_val = p[0] = a[0];
+	for (i = 1; i < limit; i += 3) {
+		i_1 = i + 1;
+		i_2 = i + 2;
+		int a_i   = a[i];
+		int a_i_1 = a[i_1];
+		int a_i_2 = a[i_2];
+		p[i] = last_val + a_i;
+		val = last_val + (a_i + a_i_1);
+		p[i_1] = val;
+		val = last_val + (a_i + (a_i_1 + a_i_2));
+		p[i_2] = val;
+		last_val = val;
+	}
+
+	for (; i < n; i++) {
+		val  = last_val + a[i];
+		p[i] = val;
+		last_val = val;
+	}
+}
+
 int main()
 {
 	char a = (char) 0x40;

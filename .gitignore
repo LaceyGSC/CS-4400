@@ -6,3 +6,6 @@ btest
 dlc
 Debug
 ~*.xlsx
+*.o
+driver
+*.tar.gz
