@@ -36,130 +36,6 @@ void naive_rotate(int dim, pixel *src, pixel *dst)
       dst[RIDX(j, dim-1-i, dim)] = src[RIDX(i, j, dim)];
 }
 
-/* 
- * ...
- */
-char no_multiply_rotate_descr[] = "no_multiply_rotate: ...";
-void no_multiply_rotate(int dim, pixel *src, pixel *dst)
-{
-	unsigned int src_length = dim * dim;
-	int src_index = 0;
-	int dst_index = dim - 1;
-	int dst_start = dst_index;
-	pixel src_value;
-
-	if (src_length > dim) {
-		for (; src_index < src_length; src_index++) {
-			src_value = src[src_index];
-			dst[dst_index] = src_value;
-			dst_index += dim;
-			if (dst_index >= src_length) {
-				dst_start -= 1;
-				dst_index = dst_start;
-			}
-		}
-	} else {
-		printf("%s", "overflow...");
-	}
-}
-
-/* 
- * ...
- */
-char no_multiply_rotate_unroll2_descr[] = "no_multiply_rotate_unroll2: ...";
-void no_multiply_rotate_unroll2(int dim, pixel *src, pixel *dst)
-{
-    // WYLO .... This shit does NOT speed things up. Don't debug from Xcode because you get the wrong results!
-    
-	unsigned int src_length = dim * dim;
-	unsigned int src_index = 0;
-	unsigned int dst_index = dim - 1;
-	unsigned int dst_start = dst_index;
-	
-	unsigned int limit = src_length - 1;
-	pixel src_value0;
-	pixel src_value1;
-
-	if (src_length > dim) {
-		for (; src_index < limit; src_index += 2) {
-			src_value0 = src[src_index];
-			src_value1 = src[src_index + 1];
-			dst[dst_index]       = src_value0;
-			dst[dst_index + dim] = src_value1;
-			dst_index += dim + dim;
-			if (dst_index >= src_length) {
-				dst_start -= 1;
-				dst_index = dst_start;
-			}
-		}
-	} else {
-		printf("%s", "overflow...");
-	}
-	
-	if (src_length > dim) {
-		for (; src_index < src_length; src_index++) {
-			src_value0 = src[src_index];
-			dst[dst_index] = src_value0;
-			dst_index += dim;
-			if (dst_index >= src_length) {
-				dst_start -= 1;
-				dst_index = dst_start;
-			}
-		}
-	} else {
-		printf("%s", "overflow...");
-	}
-}
-
-/*
- * ...
- */
-char no_multiply_rotate_unroll3_descr[] = "no_multiply_rotate_unroll3: ...";
-void no_multiply_rotate_unroll3(int dim, pixel *src, pixel *dst)
-{
-    unsigned int src_length = dim * dim;
-    unsigned int src_index = 0;
-    unsigned int dst_index = dim - 1;
-    unsigned int dst_start = dst_index;
-    
-    unsigned int limit = src_length - 2;
-    pixel src_value0;
-    pixel src_value1;
-    pixel src_value2;
-    
-    if (src_length > dim) {
-        for (; src_index < limit; src_index += 3) {
-            src_value0 = src[src_index];
-            src_value1 = src[src_index + 1];
-            src_value2 = src[src_index + 2];
-            dst[dst_index]             = src_value0;
-            dst[dst_index + dim]       = src_value1;
-            dst[dst_index + dim + dim] = src_value2;
-            dst_index += dim + dim + dim;
-            if (dst_index >= src_length) {
-                dst_start -= 1;
-                dst_index = dst_start;
-            }
-        }
-    } else {
-        printf("%s", "overflow...");
-    }
-    
-    if (src_length > dim) {
-        for (; src_index < src_length; src_index++) {
-            src_value0 = src[src_index];
-            dst[dst_index] = src_value0;
-            dst_index += dim;
-            if (dst_index >= src_length) {
-                dst_start -= 1;
-                dst_index = dst_start;
-            }
-        }
-    } else {
-        printf("%s", "overflow...");
-    }
-}
-
 /*
  * rotate - Your current working version of rotate
  * IMPORTANT: This is the version you will be graded on
@@ -167,7 +43,7 @@ void no_multiply_rotate_unroll3(int dim, pixel *src, pixel *dst)
 char rotate_descr[] = "rotate: Current working version";
 void rotate(int dim, pixel *src, pixel *dst) 
 {
-	no_multiply_rotate(dim, src, dst);
+	naive_rotate(dim, src, dst);
 }
 
 /*********************************************************************
@@ -181,10 +57,6 @@ void rotate(int dim, pixel *src, pixel *dst)
 void register_rotate_functions() 
 {
   add_rotate_function(&naive_rotate,               naive_rotate_descr);
-  add_rotate_function(&no_multiply_rotate,         no_multiply_rotate_descr);
-  add_rotate_function(&no_multiply_rotate_unroll2, no_multiply_rotate_unroll2_descr);
-  add_rotate_function(&no_multiply_rotate_unroll3, no_multiply_rotate_unroll3_descr);
-  /* ... Register additional test functions here */
 }
 
 
