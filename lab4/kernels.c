@@ -37,26 +37,75 @@ void naive_rotate(int dim, pixel *src, pixel *dst)
 }
 
 /* 
- * WYLO .... This function is *no* better than the naive implementation.
- *
- * move_src_index_rotate
- *
- * Since i and dim never change in the inner loop and their multiplication is expensive, calculate
- * i * dim in the outer loop and then simply add the result to j in the inner loop.
+ * ...
  */
-char move_src_index_rotate_descr[] = "move_src_index_rotate: Move the multiplication part of calculating the src index to the outer loop";
-void move_src_index_rotate(int dim, pixel *src, pixel *dst)
+char no_multiply_rotate_descr[] = "no_multiply_rotate: ...";
+void no_multiply_rotate(int dim, pixel *src, pixel *dst)
 {
-	int i, j;
-	int src_index;
-	int dst_index;
+	unsigned int src_length = dim * dim;
+	int src_index = 0;
+	int dst_index = dim - 1;
+	int dst_start = dst_index;
+	pixel src_value;
 
-	for (i = 0; i < dim; i++) {
-		src_index = i * dim;
-		dst_index = dim-1-i;
-		for (j = 0; j < dim; j++) {
-			dst[j * dim + dst_index] = src[src_index + j];
+	if (src_length > dim) {
+		for (; src_index < src_length; src_index++) {
+			src_value = src[src_index];
+			dst[dst_index] = src_value;
+			dst_index += dim;
+			if (dst_index >= src_length) {
+				dst_start -= 1;
+				dst_index = dst_start;
+			}
 		}
+	} else {
+		printf("%s", "overflow...");
+	}
+}
+
+/* 
+ * ...
+ */
+char no_multiply_rotate_unroll2_descr[] = "no_multiply_rotate_unroll2: ...";
+void no_multiply_rotate_unroll2(int dim, pixel *src, pixel *dst)
+{
+	unsigned int src_length = dim * dim;
+	unsigned int src_index = 0;
+	unsigned int dst_index = dim - 1;
+	unsigned int dst_start = dst_index;
+	
+	unsigned int limit = src_length - 1;
+	pixel src_value0;
+	pixel src_value1;
+
+	if (src_length > dim) {
+		for (; src_index < limit; src_index += 2) {
+			src_value0 = src[src_index];
+			src_value1 = src[src_index + 1];
+			dst[dst_index]       = src_value0;
+			dst[dst_index + dim] = src_value1;
+			dst_index = dim + dim;
+			if (dst_index >= src_length) {
+				dst_start -= 1;
+				dst_index = dst_start;
+			}
+		}
+	} else {
+		printf("%s", "overflow...");
+	}
+	
+	if (src_length > dim) {
+		for (; src_index < src_length; src_index++) {
+			src_value0 = src[src_index];
+			dst[dst_index] = src_value0;
+			dst_index += dim;
+			if (dst_index >= src_length) {
+				dst_start -= 1;
+				dst_index = dst_start;
+			}
+		}
+	} else {
+		printf("%s", "overflow...");
 	}
 }
 
@@ -67,7 +116,7 @@ void move_src_index_rotate(int dim, pixel *src, pixel *dst)
 char rotate_descr[] = "rotate: Current working version";
 void rotate(int dim, pixel *src, pixel *dst) 
 {
-	move_src_index_rotate(dim, src, dst);
+	no_multiply_rotate(dim, src, dst);
 }
 
 /*********************************************************************
@@ -80,8 +129,9 @@ void rotate(int dim, pixel *src, pixel *dst)
 
 void register_rotate_functions() 
 {
-  add_rotate_function(&naive_rotate, naive_rotate_descr);   
-  add_rotate_function(&rotate, rotate_descr);   
+  add_rotate_function(&naive_rotate,               naive_rotate_descr);
+  add_rotate_function(&no_multiply_rotate,         no_multiply_rotate_descr);
+  add_rotate_function(&no_multiply_rotate_unroll2, no_multiply_rotate_unroll2_descr);
   /* ... Register additional test functions here */
 }
 

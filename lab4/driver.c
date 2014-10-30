@@ -219,8 +219,12 @@ static int check_rotate(int dim)
     printf("E.g., The following two pixels should have equal value:\n");
     printf("src[%d][%d].{red,green,blue} = {%d,%d,%d}\n",
 	   badi, badj, orig_bad.red, orig_bad.green, orig_bad.blue);
+    /*
     printf("dst[%d][%d].{red,green,blue} = {%d,%d,%d}\n",
 	   (dim-1-badj), badi, res_bad.red, res_bad.green, res_bad.blue);
+	*/
+    printf("dst[%d][%d].{red,green,blue} = {%d,%d,%d}\n",
+    	badj, (dim-1-badi), res_bad.red, res_bad.green, res_bad.blue);
   }
 
   return err;
