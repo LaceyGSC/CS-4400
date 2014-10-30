@@ -1,37 +1,37 @@
 naive_rotate:
-	pushl	%ebp
-	movl	%esp, %ebp
-	pushl	%edi
-	pushl	%esi
-	pushl	%ebx
-	subl	$12, %esp
-	movl	8(%ebp), %esi
-	testl	%esi, %esi
-	jle	.L5
-	movl	12(%ebp), %eax
-	leal	0(,%esi,4), %edi
-	movl	$0, -24(%ebp)
-	movl	%eax, -20(%ebp)
-	movl	16(%ebp), %eax
-	leal	-4(%eax,%esi,4), %eax
-	movl	%eax, -16(%ebp)
+	pushl	%ebp                   //  push the frame pointer onto the stack
+	movl	%esp, %ebp             //  move the frame pointer down to the stack pointer
+	pushl	%edi                   //  push %edi onto the stack (because it's callee-saved and naive_rotate() is going to change it)
+	pushl	%esi                   //  push %esi onto the stack (because it's callee-saved and naive_rotate() is going to change it)
+	pushl	%ebx                   //  push %ebx onto the stack (because it's callee-saved and naive_rotate() is going to change it)
+	subl	$12, %esp              //  create three "spots" on the stack
+	movl	8(%ebp), %esi          //  load the value of "dim" into %esi
+	testl	%esi, %esi             //  if (dim is zero)
+	jle	.L5                        //      jump to .L5  //  i.e. return from naive_rotate() without doing anything
+	movl	12(%ebp), %eax         //  %eax = src[0]
+	leal	0(,%esi,4), %edi       //  %edi = 4n
+	movl	$0, -24(%ebp)          //  move 0 onto the stack
+	movl	%eax, -20(%ebp)        //  move src onto the stack
+	movl	16(%ebp), %eax         //  %eax = dst
+	leal	-4(%eax,%esi,4), %eax  //  %eax = 4n + dst - 4
+	movl	%eax, -16(%ebp)        //  put that shit onto the stack at -16(%ebp)
 .L3:
-	movl	-16(%ebp), %ecx
-	xorl	%eax, %eax
-	movl	-20(%ebp), %edx
+	movl	-16(%ebp), %ecx        //  %ecx = 4n + dst - 4
+	xorl	%eax, %eax             //  %eax = 0
+	movl	-20(%ebp), %edx        //  %edx = src
 .L4:
-	movl	(%edx), %ebx
-	addl	$1, %eax
-	addl	$4, %edx
-	movl	%ebx, (%ecx)
-	addl	%edi, %ecx
-	cmpl	%esi, %eax
-	jne	.L4
-	addl	$1, -24(%ebp)
-	addl	%edi, -20(%ebp)
-	subl	$4, -16(%ebp)
-	cmpl	%esi, -24(%ebp)
-	jne	.L3
+	movl	(%edx), %ebx           //  %ebx = src[0]
+	addl	$1, %eax               //  %eax = 1
+	addl	$4, %edx               //  %edx = &src[1]
+	movl	%ebx, (%ecx)           //  src[0] = dst[0] ?
+	addl	%edi, %ecx             //  %ecx = %ecx + %edi  //  %ecx = src + 4n
+	cmpl	%esi, %eax             //  if (1 < dim)
+	jne	.L4                        //      go to .L4
+	addl	$1, -24(%ebp)          //  -24(%ebp) = 1
+	addl	%edi, -20(%ebp)        //  src += 4n
+	subl	$4, -16(%ebp)          //  -16(%ebp) = 4n + dst
+	cmpl	%esi, -24(%ebp)        //  if (1 < dim)
+	jne	.L3                        //      go to .L3
 .L5:
 	addl	$12, %esp
 	popl	%ebx
