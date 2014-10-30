@@ -110,6 +110,55 @@ void no_multiply_rotate_unroll2(int dim, pixel *src, pixel *dst)
 }
 
 /*
+ * ...
+ */
+char no_multiply_rotate_unroll3_descr[] = "no_multiply_rotate_unroll3: ...";
+void no_multiply_rotate_unroll3(int dim, pixel *src, pixel *dst)
+{
+    unsigned int src_length = dim * dim;
+    unsigned int src_index = 0;
+    unsigned int dst_index = dim - 1;
+    unsigned int dst_start = dst_index;
+    
+    unsigned int limit = src_length - 2;
+    pixel src_value0;
+    pixel src_value1;
+    pixel src_value2;
+    
+    if (src_length > dim) {
+        for (; src_index < limit; src_index += 3) {
+            src_value0 = src[src_index];
+            src_value1 = src[src_index + 1];
+            src_value2 = src[src_index + 2];
+            dst[dst_index]             = src_value0;
+            dst[dst_index + dim]       = src_value1; // WYLO .... This line has the bug. After one loop, dst_index + dim is past src_length. How to solve this?
+            dst[dst_index + dim + dim] = src_value2;
+            dst_index += dim + dim + dim;
+            if (dst_index >= src_length) {
+                dst_start -= 1;
+                dst_index = dst_start;
+            }
+        }
+    } else {
+        printf("%s", "overflow...");
+    }
+    
+    if (src_length > dim) {
+        for (; src_index < src_length; src_index++) {
+            src_value0 = src[src_index];
+            dst[dst_index] = src_value0;
+            dst_index += dim;
+            if (dst_index >= src_length) {
+                dst_start -= 1;
+                dst_index = dst_start;
+            }
+        }
+    } else {
+        printf("%s", "overflow...");
+    }
+}
+
+/*
  * rotate - Your current working version of rotate
  * IMPORTANT: This is the version you will be graded on
  */
@@ -132,6 +181,7 @@ void register_rotate_functions()
   add_rotate_function(&naive_rotate,               naive_rotate_descr);
   add_rotate_function(&no_multiply_rotate,         no_multiply_rotate_descr);
   add_rotate_function(&no_multiply_rotate_unroll2, no_multiply_rotate_unroll2_descr);
+  add_rotate_function(&no_multiply_rotate_unroll3, no_multiply_rotate_unroll3_descr);
   /* ... Register additional test functions here */
 }
 
