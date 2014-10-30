@@ -69,6 +69,8 @@ void no_multiply_rotate(int dim, pixel *src, pixel *dst)
 char no_multiply_rotate_unroll2_descr[] = "no_multiply_rotate_unroll2: ...";
 void no_multiply_rotate_unroll2(int dim, pixel *src, pixel *dst)
 {
+    // WYLO .... This shit does NOT speed things up. Don't debug from Xcode because you get the wrong results!
+    
 	unsigned int src_length = dim * dim;
 	unsigned int src_index = 0;
 	unsigned int dst_index = dim - 1;
@@ -131,7 +133,7 @@ void no_multiply_rotate_unroll3(int dim, pixel *src, pixel *dst)
             src_value1 = src[src_index + 1];
             src_value2 = src[src_index + 2];
             dst[dst_index]             = src_value0;
-            dst[dst_index + dim]       = src_value1; // WYLO .... This line has the bug. After one loop, dst_index + dim is past src_length. How to solve this?
+            dst[dst_index + dim]       = src_value1;
             dst[dst_index + dim + dim] = src_value2;
             dst_index += dim + dim + dim;
             if (dst_index >= src_length) {
