@@ -7,5 +7,7 @@ dlc
 Debug
 ~*.xlsx
 *.o
-driver
 *.tar.gz
+*.xcworkspace
+!default.xcworkspace
+xcuserdata
