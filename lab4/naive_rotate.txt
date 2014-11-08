@@ -20,12 +20,12 @@ naive_rotate:
 	xorl	%eax, %eax             //  %eax = 0
 	movl	-20(%ebp), %edx        //  %edx = src
 .L4:
-	movl	(%edx), %ebx           //  %ebx = src[0]
-	addl	$1, %eax               //  %eax = 1
-	addl	$4, %edx               //  %edx = &src[1]
-	movl	%ebx, (%ecx)           //  src[0] = dst[0] ?
-	addl	%edi, %ecx             //  %ecx = %ecx + %edi  //  %ecx = src + 4n
-	cmpl	%esi, %eax             //  if (1 < dim)
+	movl	(%edx), %ebx           //  %ebx = src[3]
+	addl	$1, %eax               //  %eax = 4
+	addl	$4, %edx               //  %edx = src + 16
+	movl	%ebx, (%ecx)           //  src[3] = dst[3]
+	addl	%edi, %ecx             //  %ecx = %ecx + %edi  //  %ecx = dst + 4n
+	cmpl	%esi, %eax             //  if (4 < dim)
 	jne	.L4                        //      go to .L4
 	addl	$1, -24(%ebp)          //  -24(%ebp) = 1
 	addl	%edi, -20(%ebp)        //  src += 4n
