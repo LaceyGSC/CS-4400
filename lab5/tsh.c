@@ -62,9 +62,16 @@ int builtin_cmd(char **argv);
 void do_bgfg(char **argv);
 void waitfg(pid_t pid);
 
-void sigchld_handler(int sig);
 void sigtstp_handler(int sig);
 void sigint_handler(int sig);
+void sigchld_handler(int sig);
+
+/* Various error-handling wrappers */
+pid_t Fork(void);
+void Sigemptyset(sigset_t *set);
+void Sigaddset(sigset_t *set, int signum);
+void Sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
+void Addjob(pid_t pid, int state, char *cmdline, sigset_t *mask);
 
 /* Here are helper routines that we've provided for you */
 int parseline(const char *cmdline, char **argv); 
@@ -166,9 +173,10 @@ int main(int argc, char **argv)
 */
 void eval(char *cmdline) 
 {
-	char *argv[MAXARGS]; // The argument list built by parseline() and passed to execve()
-	int bg;              // If true, run the job in the background
-	pid_t pid;           // The process ID of the child
+	char *argv[MAXARGS]; // Argument list built by parseline() and passed to execve()
+	int bg;              // If true, run job in background
+	pid_t pid;           // Process ID of forked child
+	sigset_t mask;       // Mask for blocking/unblocking SIGCHILD
 
 	bg = parseline(cmdline, argv);
 	if (argv[0] == NULL) {
@@ -176,21 +184,43 @@ void eval(char *cmdline)
 	}
 
 	if (!builtin_cmd(argv)) {
-		if ((pid = Fork()) == 0) { // child
-			if (execve(argv[0], argv, environ) < 0) {
+		Sigemptyset(&mask);
+		Sigaddset(&mask, SIGCHLD);
+		Sigprocmask(SIG_BLOCK, &mask, NULL); // Block SIGCHILD in the parent process
+		if ((pid = Fork()) == 0) {
+			Sigprocmask(SIG_UNBLOCK, &mask, NULL); // Unblock SIGCHILD in the child process
+			if (execve(argv[0], argv, environ) < 0) { // TODO: Create an error-handling wrapper for execve?
 				printf("Command not found: %s", argv[0]);
 				exit(0);
 			}
 		}
 
-		/* If job is not in background, wait for it to terminate */
+		// WYLO .... Test the first 4 trace files...
+
+		/* If the job is not in the background, wait for it to terminate */
 		if (!bg) {
-			// WYLO .... Copy the starter code for this if block on page 735...
+			Addjob(pid, FG, cmdline, &mask);
+			int status;
+			if (waitpid(pid, &status, 0) < 0) {
+				unix_error("waitfg: waitpid error");
+			}
 		} else {
-			// Eventually, do what the reference shell does when it's a background job (probably printing the background job's PID or something)
+			Addjob(pid, BG, cmdline, &mask);
+			printf("[%d] (%d) %s\n", pid2jid(pid), pid, cmdline);
 		}
 	}
 	return;
+}
+
+/*
+ * Addjob - A wrapper for addjob() that performs error-checking and unblocks SIGCHILD
+ */
+void Addjob(pid_t pid, int state, char *cmdline, sigset_t *mask)
+{
+	if (addjob(&jobs[0], pid, state, cmdline) == 0) {
+		unix_error("addjob error");
+	}
+	Sigprocmask(SIG_UNBLOCK, mask, NULL);
 }
 
 /* 
@@ -289,9 +319,10 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig) 
 {
-	while (waitpid(-1, NULL, 0) > 0) {
-		printf("%s", "Nice job. A child process was reaped...\n");
-		; // Nothing is needed in the loop body. The waitpaid() function handles all the reaping (as many children as possible)
+	pid_t pid;
+	while ((pid = waitpid(-1, NULL, 0)) > 0) { // Reap a zombie child process
+		deletejob(&jobs[0], pid); // TODO: Should you have an error-checking wrapper that exits if deletejob() returns 0?
+		printf("%s", "Nice job. A child process was reaped and a job deleted...\n");
 	}
 	if (errno != ECHILD) {
 		unix_error("waitpid error in sigchld_handler");
@@ -359,21 +390,21 @@ int addjob(struct job_t *jobs, pid_t pid, int state, char *cmdline)
     int i;
     
     if (pid < 1)
-	return 0;
+    	return 0;
 
     for (i = 0; i < MAXJOBS; i++) {
-	if (jobs[i].pid == 0) {
-	    jobs[i].pid = pid;
-	    jobs[i].state = state;
-	    jobs[i].jid = nextjid++;
-	    if (nextjid > MAXJOBS)
-		nextjid = 1;
-	    strcpy(jobs[i].cmdline, cmdline);
-  	    if(verbose){
-	        printf("Added job [%d] %d %s\n", jobs[i].jid, jobs[i].pid, jobs[i].cmdline);
-            }
-            return 1;
-	}
+		if (jobs[i].pid == 0) {
+			jobs[i].pid = pid;
+			jobs[i].state = state;
+			jobs[i].jid = nextjid++;
+			if (nextjid > MAXJOBS)
+				nextjid = 1;
+			strcpy(jobs[i].cmdline, cmdline);
+			if (verbose){
+				printf("Added job [%d] %d %s\n", jobs[i].jid, jobs[i].pid, jobs[i].cmdline);
+			}
+			return 1;
+		}
     }
     printf("Tried to create too many jobs\n");
     return 0;
@@ -385,14 +416,14 @@ int deletejob(struct job_t *jobs, pid_t pid)
     int i;
 
     if (pid < 1)
-	return 0;
+    	return 0;
 
     for (i = 0; i < MAXJOBS; i++) {
-	if (jobs[i].pid == pid) {
-	    clearjob(&jobs[i]);
-	    nextjid = maxjid(jobs)+1;
-	    return 1;
-	}
+		if (jobs[i].pid == pid) {
+			clearjob(&jobs[i]);
+			nextjid = maxjid(jobs)+1;
+			return 1;
+		}
     }
     return 0;
 }
@@ -438,9 +469,9 @@ int pid2jid(pid_t pid)
     int i;
 
     if (pid < 1)
-	return 0;
+    	return 0;
     for (i = 0; i < MAXJOBS; i++)
-	if (jobs[i].pid == pid) {
+    	if (jobs[i].pid == pid) {
             return jobs[i].jid;
         }
     return 0;
@@ -489,9 +520,30 @@ pid_t Fork(void)
 {
 	pid_t pid;
 	if ((pid = fork()) < 0) {
-		unix_error("Fork error");
+		unix_error("fork error");
 	}
 	return pid;
+}
+
+void Sigemptyset(sigset_t *set)
+{
+	if (sigemptyset(set) < 0) {
+		unix_error("sigemptyset error");
+	}
+}
+
+void Sigaddset(sigset_t *set, int signum)
+{
+	if (sigaddset(set, signum)) {
+		unix_error("sigemptyset error");
+	}
+}
+
+void Sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
+{
+	if (sigprocmask(how, set, oldset) < 0) {
+		unix_error("sigprocmask error");
+	}
 }
 
 /*
