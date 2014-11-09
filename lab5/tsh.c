@@ -189,8 +189,6 @@ void eval(char *cmdline)
 		Sigaddset(&mask, SIGCHLD);
 		Sigprocmask(SIG_BLOCK, &mask, NULL); // Block SIGCHLD in the parent process
 
-		// WYLO .... Your code for adding, and/or deleting, and/or listing jobs is doing something very wrong...Your call to pid2jid(pid) must be returning zero...
-
 		if ((pid = Fork()) == 0) {
 			Sigprocmask(SIG_UNBLOCK, &mask, NULL); // Unblock SIGCHLD in the child process
 			setpgid(0, 0);
@@ -329,7 +327,7 @@ void waitfg(pid_t pid)
 void sigchld_handler(int sig) 
 {
 	pid_t pid;
-	while ((pid = waitpid(-1, NULL, 0)) > 0) { // Reap a zombie child process
+	while ((pid = waitpid(-1, NULL, WNOHANG|WUNTRACED)) > 0) { // Reap a zombie child process
 		deletejob(&jobs[0], pid); // TODO: Should you have an error-checking wrapper that exits if deletejob() returns 0?
 		//printf("%s", "Nicely done. A child process was reaped and a job deleted...\n");
 	}
