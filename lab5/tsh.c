@@ -176,7 +176,7 @@ void eval(char *cmdline)
 	char *argv[MAXARGS]; // Argument list built by parseline() and passed to execve()
 	int bg;              // If true, run job in background
 	pid_t pid;           // Process ID of forked child
-	sigset_t mask;       // Mask for blocking/unblocking SIGCHILD
+	sigset_t mask;       // Mask for blocking/unblocking SIGCHLD
 
 	bg = parseline(cmdline, argv);
 	if (argv[0] == NULL) {
@@ -186,34 +186,35 @@ void eval(char *cmdline)
 	if (!builtin_cmd(argv)) {
 		Sigemptyset(&mask);
 		Sigaddset(&mask, SIGCHLD);
-		Sigprocmask(SIG_BLOCK, &mask, NULL); // Block SIGCHILD in the parent process
+		Sigprocmask(SIG_BLOCK, &mask, NULL); // Block SIGCHLD in the parent process
+
+		// WYLO .... Your code for adding jobs is doing something wrong. Maybe it's time to put child processes into their own process group...
+
 		if ((pid = Fork()) == 0) {
-			Sigprocmask(SIG_UNBLOCK, &mask, NULL); // Unblock SIGCHILD in the child process
+			Sigprocmask(SIG_UNBLOCK, &mask, NULL); // Unblock SIGCHLD in the child process
 			if (execve(argv[0], argv, environ) < 0) { // TODO: Create an error-handling wrapper for execve?
-				printf("Command not found: %s", argv[0]);
+				printf("Command not found: %s\n", argv[0]);
 				exit(0);
 			}
 		}
 
-		// WYLO .... Test the first 4 trace files...
-
 		/* If the job is not in the background, wait for it to terminate */
 		if (!bg) {
-			Addjob(pid, FG, cmdline, &mask);
+			//Addjob(pid, FG, cmdline, &mask);
 			int status;
 			if (waitpid(pid, &status, 0) < 0) {
 				unix_error("waitfg: waitpid error");
 			}
 		} else {
 			Addjob(pid, BG, cmdline, &mask);
-			printf("[%d] (%d) %s\n", pid2jid(pid), pid, cmdline);
+			printf("[%d] (%d) %s", pid2jid(pid), pid, cmdline);
 		}
 	}
 	return;
 }
 
 /*
- * Addjob - A wrapper for addjob() that performs error-checking and unblocks SIGCHILD
+ * Addjob - A wrapper for addjob() that performs error-checking and unblocks SIGCHLD
  */
 void Addjob(pid_t pid, int state, char *cmdline, sigset_t *mask)
 {
@@ -285,7 +286,12 @@ int parseline(const char *cmdline, char **argv)
 int builtin_cmd(char **argv) 
 {
 	if (!strcmp(argv[0], "quit")) {
-		exit(0); // exit if the user typed 'quit'
+		exit(0);
+	} else if (!strcmp(argv[0], "jobs")) {
+		// [1] (27452) Running ./myspin 2 &
+		// [2] (27454) Running ./myspin 3 &
+		listjobs(&jobs[0]);
+		return 1;
 	}
 	return 0;     /* not a builtin command */
 }
@@ -322,7 +328,7 @@ void sigchld_handler(int sig)
 	pid_t pid;
 	while ((pid = waitpid(-1, NULL, 0)) > 0) { // Reap a zombie child process
 		deletejob(&jobs[0], pid); // TODO: Should you have an error-checking wrapper that exits if deletejob() returns 0?
-		printf("%s", "Nice job. A child process was reaped and a job deleted...\n");
+		// printf("%s", "Nice job. A child process was reaped and a job deleted...\n");
 	}
 	if (errno != ECHILD) {
 		unix_error("waitpid error in sigchld_handler");
@@ -483,24 +489,24 @@ void listjobs(struct job_t *jobs)
     int i;
     
     for (i = 0; i < MAXJOBS; i++) {
-	if (jobs[i].pid != 0) {
-	    printf("[%d] (%d) ", jobs[i].jid, jobs[i].pid);
-	    switch (jobs[i].state) {
-		case BG: 
-		    printf("Running ");
-		    break;
-		case FG: 
-		    printf("Foreground ");
-		    break;
-		case ST: 
-		    printf("Stopped ");
-		    break;
-	    default:
-		    printf("listjobs: Internal error: job[%d].state=%d ", 
-			   i, jobs[i].state);
-	    }
-	    printf("%s", jobs[i].cmdline);
-	}
+		if (jobs[i].pid != 0) {
+			printf("[%d] (%d) ", jobs[i].jid, jobs[i].pid);
+			switch (jobs[i].state) {
+			case BG:
+				printf("Running ");
+				break;
+			case FG:
+				printf("Foreground ");
+				break;
+			case ST:
+				printf("Stopped ");
+				break;
+			default:
+				printf("listjobs: Internal error: job[%d].state=%d ",
+				   i, jobs[i].state);
+			}
+			printf("%s", jobs[i].cmdline);
+		}
     }
 }
 /******************************
