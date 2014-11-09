@@ -179,6 +179,7 @@ void eval(char *cmdline)
 	sigset_t mask;       // Mask for blocking/unblocking SIGCHLD
 
 	bg = parseline(cmdline, argv);
+	printf("bg is %d for %s",  bg, cmdline);
 	if (argv[0] == NULL) {
 		return; // Ignore empty lines
 	}
@@ -188,7 +189,7 @@ void eval(char *cmdline)
 		Sigaddset(&mask, SIGCHLD);
 		Sigprocmask(SIG_BLOCK, &mask, NULL); // Block SIGCHLD in the parent process
 
-		// WYLO .... Your code for adding jobs is doing something wrong. Maybe it's time to put child processes into their own process group...
+		// WYLO .... Your code for adding jobs is doing something wrong when executed by sdriver.pl. Maybe it's time to put child processes into their own process group...
 
 		if ((pid = Fork()) == 0) {
 			Sigprocmask(SIG_UNBLOCK, &mask, NULL); // Unblock SIGCHLD in the child process
@@ -200,7 +201,7 @@ void eval(char *cmdline)
 
 		/* If the job is not in the background, wait for it to terminate */
 		if (!bg) {
-			//Addjob(pid, FG, cmdline, &mask);
+			//Addjob(pid, FG, cmdline, &mask); // TODO: Should this be commented or not?
 			int status;
 			if (waitpid(pid, &status, 0) < 0) {
 				unix_error("waitfg: waitpid error");
