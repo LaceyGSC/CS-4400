@@ -328,7 +328,7 @@ void sigchld_handler(int sig)
 	pid_t pid;
 	while ((pid = waitpid(-1, NULL, 0)) > 0) { // Reap a zombie child process
 		deletejob(&jobs[0], pid); // TODO: Should you have an error-checking wrapper that exits if deletejob() returns 0?
-		// printf("%s", "Nice job. A child process was reaped and a job deleted...\n");
+		// printf("%s", "Nicely done. A child process was reaped and a job deleted...\n");
 	}
 	if (errno != ECHILD) {
 		unix_error("waitpid error in sigchld_handler");
