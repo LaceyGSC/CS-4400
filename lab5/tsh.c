@@ -189,10 +189,11 @@ void eval(char *cmdline)
 		Sigaddset(&mask, SIGCHLD);
 		Sigprocmask(SIG_BLOCK, &mask, NULL); // Block SIGCHLD in the parent process
 
-		// WYLO .... Your code for adding jobs is doing something wrong when executed by sdriver.pl. Maybe it's time to put child processes into their own process group...
+		// WYLO .... Your code for adding, and/or deleting, and/or listing jobs is doing something very wrong...
 
 		if ((pid = Fork()) == 0) {
 			Sigprocmask(SIG_UNBLOCK, &mask, NULL); // Unblock SIGCHLD in the child process
+			setpgid(0, 0);
 			if (execve(argv[0], argv, environ) < 0) { // TODO: Create an error-handling wrapper for execve?
 				printf("Command not found: %s\n", argv[0]);
 				exit(0);
@@ -329,7 +330,7 @@ void sigchld_handler(int sig)
 	pid_t pid;
 	while ((pid = waitpid(-1, NULL, 0)) > 0) { // Reap a zombie child process
 		deletejob(&jobs[0], pid); // TODO: Should you have an error-checking wrapper that exits if deletejob() returns 0?
-		// printf("%s", "Nicely done. A child process was reaped and a job deleted...\n");
+		printf("%s", "Nicely done. A child process was reaped and a job deleted...\n");
 	}
 	if (errno != ECHILD) {
 		unix_error("waitpid error in sigchld_handler");
