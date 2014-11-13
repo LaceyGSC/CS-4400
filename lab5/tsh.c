@@ -200,12 +200,17 @@ void eval(char *cmdline)
 
 		/* If the job is not in the background, wait for it to terminate */
 		if (!bg) {
-			//Addjob(pid, FG, cmdline, &mask); // TODO: Should this be commented or not?
-			Sigprocmask(SIG_UNBLOCK, &mask, NULL);
-			int status;
+			Addjob(pid, FG, cmdline, &mask); // TODO: Should this be commented or not?
+			//Sigprocmask(SIG_UNBLOCK, &mask, NULL);
+			// int status;
+			waitfg(pid);
+			/*
 			if (waitpid(pid, &status, 0) < 0) {
 				unix_error("waitfg: waitpid error");
+			} else {
+				printf("Well now, you just used waitpid without deleting a job...");
 			}
+			*/
 		} else {
 			Addjob(pid, BG, cmdline, &mask);
 			printf("[%d] (%d) %s", pid2jid(pid), pid, cmdline);
@@ -289,8 +294,6 @@ int builtin_cmd(char **argv)
 	if (!strcmp(argv[0], "quit")) {
 		exit(0);
 	} else if (!strcmp(argv[0], "jobs")) {
-		// [1] (27452) Running ./myspin 2 &
-		// [2] (27454) Running ./myspin 3 &
 		listjobs(&jobs[0]);
 		return 1;
 	}
@@ -310,7 +313,9 @@ void do_bgfg(char **argv)
  */
 void waitfg(pid_t pid)
 {
-    return;
+    while (pid == fgpid(&jobs[0])) {
+    	sleep(100);
+    }
 }
 
 /*****************
@@ -326,14 +331,18 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig) 
 {
+	//printf("Got inside sigchld_handler");
 	pid_t pid;
 	while ((pid = waitpid(-1, NULL, WNOHANG|WUNTRACED)) > 0) { // Reap a zombie child process
-		deletejob(&jobs[0], pid); // TODO: Should you have an error-checking wrapper that exits if deletejob() returns 0?
-		//printf("%s", "Nicely done. A child process was reaped and a job deleted...\n");
+		struct job_t *job = getjobpid(&jobs[0], pid);
+		if (job && job->state != ST) {
+			deletejob(&jobs[0], pid); // TODO: Should you have an error-checking wrapper that exits if deletejob() returns 0?
+			//printf("Nicely done. Child pid (%d) was reaped and its job deleted...\n", pid);
+		}
 	}
-	if (errno != ECHILD) {
-		unix_error("waitpid error in sigchld_handler");
-	}
+	//if (errno != ECHILD) {
+		//unix_error("waitpid error in sigchld_handler");
+	//}
 }
 
 /* 
@@ -343,7 +352,13 @@ void sigchld_handler(int sig)
  */
 void sigint_handler(int sig) 
 {
-    return;
+	pid_t fg_pid = fgpid(&jobs[0]);
+	if (fg_pid) {
+		if (kill(-fg_pid, SIGINT) == -1) {
+			unix_error("error calling kill() in sigint_handler");
+		}
+		printf("Job [%d] (%d) terminated by signal %d\n", pid2jid(fg_pid), fg_pid, SIGINT);
+	}
 }
 
 /*
@@ -351,9 +366,19 @@ void sigint_handler(int sig)
  *     the user types ctrl-z at the keyboard. Catch it and suspend the
  *     foreground job by sending it a SIGTSTP.  
  */
-void sigtstp_handler(int sig) 
+void sigtstp_handler(int sig)
 {
-    return;
+	pid_t fg_pid = fgpid(&jobs[0]);
+	if (fg_pid) {
+		struct job_t *stopped_job = getjobpid(&jobs[0], fg_pid);
+		if (stopped_job) {
+			stopped_job->state = ST;
+			printf("Job [%d] (%d) stopped by signal %d\n", pid2jid(fg_pid), fg_pid, SIGTSTP);
+		}
+		if (kill(-fg_pid, SIGTSTP) == -1) {
+			unix_error("error calling kill() in sigtstp_handler");
+		}
+	}
 }
 
 /*********************
@@ -450,10 +475,10 @@ struct job_t *getjobpid(struct job_t *jobs, pid_t pid) {
     int i;
 
     if (pid < 1)
-	return NULL;
+    	return NULL;
     for (i = 0; i < MAXJOBS; i++)
-	if (jobs[i].pid == pid)
-	    return &jobs[i];
+    	if (jobs[i].pid == pid)
+    		return &jobs[i];
     return NULL;
 }
 
@@ -463,10 +488,10 @@ struct job_t *getjobjid(struct job_t *jobs, int jid)
     int i;
 
     if (jid < 1)
-	return NULL;
+    	return NULL;
     for (i = 0; i < MAXJOBS; i++)
-	if (jobs[i].jid == jid)
-	    return &jobs[i];
+    	if (jobs[i].jid == jid)
+    		return &jobs[i];
     return NULL;
 }
 
