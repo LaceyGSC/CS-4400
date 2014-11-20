@@ -332,7 +332,7 @@ void do_bgfg(char **argv)
 		job->state = FG;
 	}
 	
-	if (kill(pid, SIGCONT) == -1) {
+	if (kill(-pid, SIGCONT) == -1) {
 		unix_error("error calling kill() in do_bgfg");
 	}
 	
