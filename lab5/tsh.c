@@ -296,6 +296,9 @@ int builtin_cmd(char **argv)
 	} else if (!strcmp(argv[0], "jobs")) {
 		listjobs(&jobs[0]);
 		return 1;
+	} else if (!strcmp(argv[0], "bg")) {
+		do_bgfg(argv);
+		return 1;
 	}
 	return 0;     /* not a builtin command */
 }
@@ -305,7 +308,35 @@ int builtin_cmd(char **argv)
  */
 void do_bgfg(char **argv) 
 {
-    return;
+	pid_t pid = -1;
+	int jid = -1;
+	struct job_t *job;
+	
+	if (argv[1][0] == '%') {
+		jid = argv[1][1] - '0';
+		//printf("jid is: %d\n", jid);
+	} else {
+		pid = argv[1][0] - '0';
+		//printf("pid is: %d\n", pid);
+	}
+	
+	//printf("About to continue stopped job with ");
+	
+	if (!strcmp(argv[0], "bg")) {
+		if (jid > -1) {
+			//printf("job %d and ", jid);
+			job = getjobjid(&jobs[0], jid);
+			job->state = BG;
+			pid = job->pid;
+		}
+		//printf("pid %d in the background.\n", pid);
+		printf("[%d] (%d) %s", pid2jid(pid), pid, job->cmdline);
+		if (kill(pid, SIGCONT) == -1) {
+			unix_error("error calling kill() in sigtstp_handler");
+		}
+	} else {
+		
+	}
 }
 
 /* 
