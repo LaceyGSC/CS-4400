@@ -326,10 +326,12 @@ void do_bgfg(char **argv)
 		if (jid > -1) {
 			//printf("job %d and ", jid);
 			job = getjobjid(&jobs[0], jid);
-			job->state = BG;
 			pid = job->pid;
+		} else {
+			job = getjobpid(&jobs[0], pid);
 		}
 		//printf("pid %d in the background.\n", pid);
+		job->state = BG;
 		printf("[%d] (%d) %s", pid2jid(pid), pid, job->cmdline);
 		if (kill(pid, SIGCONT) == -1) {
 			unix_error("error calling kill() in sigtstp_handler");
