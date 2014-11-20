@@ -296,7 +296,7 @@ int builtin_cmd(char **argv)
 	} else if (!strcmp(argv[0], "jobs")) {
 		listjobs(&jobs[0]);
 		return 1;
-	} else if (!strcmp(argv[0], "bg")) {
+	} else if (!strcmp(argv[0], "bg") || !strcmp(argv[0], "fg")) {
 		do_bgfg(argv);
 		return 1;
 	}
@@ -314,30 +314,30 @@ void do_bgfg(char **argv)
 	
 	if (argv[1][0] == '%') {
 		jid = argv[1][1] - '0';
+		job = getjobjid(&jobs[0], jid);
+		pid = job->pid;
 		//printf("jid is: %d\n", jid);
 	} else {
 		pid = argv[1][0] - '0';
+		job = getjobpid(&jobs[0], pid);
 		//printf("pid is: %d\n", pid);
 	}
 	
 	//printf("About to continue stopped job with ");
 	
 	if (!strcmp(argv[0], "bg")) {
-		if (jid > -1) {
-			//printf("job %d and ", jid);
-			job = getjobjid(&jobs[0], jid);
-			pid = job->pid;
-		} else {
-			job = getjobpid(&jobs[0], pid);
-		}
-		//printf("pid %d in the background.\n", pid);
 		job->state = BG;
 		printf("[%d] (%d) %s", pid2jid(pid), pid, job->cmdline);
-		if (kill(pid, SIGCONT) == -1) {
-			unix_error("error calling kill() in sigtstp_handler");
-		}
 	} else {
-		
+		job->state = FG;
+	}
+	
+	if (kill(pid, SIGCONT) == -1) {
+		unix_error("error calling kill() in do_bgfg");
+	}
+	
+	if (!strcmp(argv[0], "fg")) {
+		waitfg(pid);
 	}
 }
 
